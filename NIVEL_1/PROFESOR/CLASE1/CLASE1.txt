@@ -1,0 +1,245 @@
+IANCARINA
+ARROZ MARY
+
+(DAVID)
+(PYTHON)
+ERP: +ADEMPIERE (JAVA)
+         ^
+         | API
+         V
+     +ODOO 
+
+     + SICMARY (SISTEMA INTEGRADO CORPORATIVO MARY)
+       RRHH
+       PEDIDOS DE VENTAS
+
+POSTGRESQL
+
+POWERBI 
+
+(YONNY)
+(JAVA/SQL)
+REPORTES. 
+DATAWARE HOUSE (INTELIGENGIA DE NEGOCIOS)
+ETL
+N8N
+
+
+(JOSÉ)
+JAVASCRIPT/PHP/PYTHON
+POO
+POSTGRESQL
+ORACLE/MYSQL
+
+¿HTML, CSS, JS, PATRÓN DE DISEÑO MVC, APIREST, CODEIGNTER?
+
+
+UBICACIÓN: PORTUGUESA - ARAURE.
+
+¿VISUAL STUDIO, ANTIGRAVITY, KIRO?
+
+ENTORNO VIRTUAL
+
+
+echo "# PYTHON_CON_IA" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/UnewebInstituto/PYTHON_CON_IA.git
+git push -u origin main
+
+ENLACE EN GIT HUB
+
+https://github.com/UnewebInstituto/PYTHON_CON_IA
+
+
+GENERACIÓN DEL ENTORNO VIRTUAL
+
+python -m venv .venv
+
+AMBIENTES
+
+PRUEBAS UNITARIAS (EN EL AMBIENTE DE DESARROLLO)
+
+ACTIVACIÓN DEL ENTORNO VIRTUAL:
+
+.venv\scripts\activate
+
+
+IDLE: ENTORNO DE DESARROLLO Y APRENDIZAJE INTEGRADO
+python -m idlelib
+
+PARADIGMA:
+PROGRAMACIÓN ORIENTADA A OBJETOS.
+
+- ESTILO DE PROGRAMACIÓN
+- AYUDA A REDUCIR LA REDUNDANCIA
+- FÁCIL DE UTILIZAR, REUSAR EL CÓDIGO, FACILITAR EL MANTENIEMINTO
+
+ANTES: PROGRAMACIÓN ESTRUCTURADA, LAS VARIABLES ERAN INDEPENDIENTES DE LAS FUNCIONES,
+VARIABLE: LOCACIÓN DE MEMORIA IDENTIFICADA MEDIANTE UN NOMBRE, QUE GUARDA TEMPORALMENTE
+UN VALOR.
+FUNCIONES: PARTE DE LOS LENGUAJES DE PROGRAMACIÓN, QUE REALIZAN UN CONJUNTO DE TAREAS,
+PUEDEN RECIBIR PARÁMETROS Y AL FINAL RETORNA UN RESULTADO.
+
+
+CLASE: Es la entidad de programación fundamental en la POO. Combina declaración de 
+variables, que se conocen como atributos, con funciones que se conocen como métodos.
+
+Por ejemplo:
+
+Class Persona:
+    #atributos
+    nombre=''
+    apellido=''
+    edad=''
+    sexo=''
+
+    #métodos
+    def caminar(self):
+        return 'La persona camina'
+
+    def comer(self):
+        return 'La persona come'
+
+    def dormir(self):
+        return 'La persona duerme'
+
+        HERENCIA
+
+              Persona  (CLASE PADRE)
+             ^      ^
+            /extends \extends 
+           /          \
+     Trabajador      Estudiante   (CLASES HIJAS O SUB CLASES)
+
+
+
+
+INSTANCIA DE CLASE: Creación de un objeto a partir de una clase
+
+alumno1 = Persona()
+
+
+CLASE
+
+    [ATRIBUTOS]
+
+    [MÉTODOS]
+
+MODIFICADORES DE ACCESO APLICA TANTO PARA ATRIBUTOS/MÉTODOS 
+1-)PÚBLICOS
+2-)PRIVADOS
+3-)PROTEGIDOS 
+
+
+CARACTERÍSTICAS DE LA POO.
+1-) HERENCIA.
+2-) ENCAPSULAMIENTO.
+3-) POLIMORFISMO.
+4-) ABSTRACCIÓN
+
+Class Trabajador(Persona):
+    #atributos propios
+
+    #método propios
+
+Class Estudiante(Persona):
+    #atributos propios
+
+    #método propios
+
+ANOTACIONES CLASE 1.
+COMMAND PROMPT 
+Python 3.12.2 (tags/v3.12.2:6abddd9, Feb  6 2024, 21:26:36) [MSC v.1937 64 bit (AMD64)] on win32
+Type "help", "copyright", "credits" or "license" for more information.
+Ctrl click to launch VS Code Native REPL
+>>> curso = 'PYTHON CON IA'
+>>> type(curso)
+<class 'str'>
+>>> curso.
+
+ANOTACIONES CLASE 1.
+IDLE
+
+Python 3.12.2 (tags/v3.12.2:6abddd9, Feb  6 2024, 21:26:36) [MSC v.1937 64 bit (AMD64)] on win32
+Type "help", "copyright", "credits" or "license()" for more information.
+curso = 'PYTHON CON IA'
+type(curso)
+<class 'str'>
+curso
+'PYTHON CON IA'
+curso.lower()
+'python con ia'
+nombre = "HENRY DUQUE"
+def largo_nombre(nombre_entrada):
+    return "La longitud del nombre: " + nombre_entrada + " es " + len(nombre_entrada) + " caracteres"
+
+largo_nombre("CARLOS DANIEL")
+Traceback (most recent call last):
+  File "<pyshell#8>", line 1, in <module>
+    largo_nombre("CARLOS DANIEL")
+  File "<pyshell#7>", line 2, in largo_nombre
+    return "La longitud del nombre: " + nombre_entrada + " es " + len(nombre_entrada) + " caracteres"
+TypeError: can only concatenate str (not "int") to str
+def largo_nombre(nombre_entrada):
+    return "La longitud del nombre: " + nombre_entrada + " es " + str(len(nombre_entrada)) + " caracteres"
+
+largo_nombre("CARLOS DANIEL")
+'La longitud del nombre: CARLOS DANIEL es 13 caracteres'
+largo_nombre(nombre)
+'La longitud del nombre: HENRY DUQUE es 11 caracteres'
+class Persona:
+    # atributos
+    nombre = ''
+    apellido = ''
+    edad = ''
+    sexo = ''
+    # métodos
+    def caminar(self):
+        return 'La persona camina'
+    def dormir(self):
+        return 'La persona duerme'
+    def comer(self):
+        return 'La persona come'
+
+    
+type(Persona)
+<class 'type'>
+alumno1 = Persona()
+type(alumno1)
+<class '__main__.Persona'>
+alumnow = Persona()
+del alumnow
+alumno2 = Persona()
+alumno3 = Persona()
+id(alumno1)
+2973990932112
+id(alumno2)
+2973990932592
+id(alumno3)
+2973990932736
+alumno1.nombre = 'YONNY'
+alumno1.apellido = 'GARCÍA'
+alumno1.edad = '20'
+alumno1.sexo = 'M'
+alumno1
+<__main__.Persona object at 0x000002B46FAC4E90>
+alumno1.nombre
+'YONNY'
+alumno1.apellido
+'GARCÍA'
+alumno1.caminar()
+'La persona camina'
+alumno1.dormir()
+'La persona duerme'
+alumno1.comer()
+'La persona come'
+
+
+
+
+
+
+
