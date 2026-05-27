@@ -1,0 +1,13 @@
+Nivel I: Fundamentos de Python para IA y Data Science
+Este nivel adapta la base de Python de Uneweb, pero orientándola desde el inicio al manejo de grandes volúmenes de datos.
+• Introducción: Configuración del entorno (Anaconda, Jupyter Notebooks y Google Colab).
+• Estructuras de Datos Avanzadas: Uso de listas, diccionarios y conjuntos para el
+almacenamiento de datos.
+• Programación Funcional: Comprensión de listas, funciones lambda, map y filter (clave
+para optimizar algoritmos).
+• Programación Orientada a Objetos (POO): Creación de clases para modelar problemas
+de IA.
+• Introducción a NumPy: Manejo de arreglos multidimensionales (tensores) y álgebra lineal
+básica.
+• Proyecto Nivel 1: Creación de un procesador de datos estadísticos básico usando Python
+puro y NumPy.

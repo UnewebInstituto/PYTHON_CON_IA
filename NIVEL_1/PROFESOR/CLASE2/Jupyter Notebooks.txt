@@ -1,0 +1,34 @@
+Jupyter Notebook es una **aplicación web de código abierto** que permite crear y compartir documentos que contienen código ejecutable, ecuaciones, visualizaciones y texto narrativo. Es la herramienta estándar de facto para la ciencia de datos y la investigación académica en Python.
+
+El nombre "Jupyter" es un acrónimo que hace referencia a los tres lenguajes principales para los que fue diseñado originalmente: **Ju**lia, **Py**thon y **R**.
+
+Aquí te detallo qué lo hace tan especial:
+
+### 1. La estructura de "Celdas"
+
+A diferencia de un archivo de script tradicional (donde escribes todo el código en un bloque y lo ejecutas de principio a fin), un Jupyter Notebook divide tu trabajo en **celdas**:
+
+* **Celdas de Código:** Donde escribes tus funciones, clases o algoritmos. Puedes ejecutar cada celda de forma independiente y ver el resultado inmediatamente debajo.
+* **Celdas de Markdown:** Donde escribes explicaciones, notas, o documentación técnica. Soporta formato enriquecido (negritas, listas, enlaces) y **LaTeX** para fórmulas matemáticas complejas (por ejemplo: $E = mc^2$).
+
+### 2. Entorno Interactivo y de Exploración
+
+Es ideal para el desarrollo, porque permite un flujo de trabajo iterativo:
+
+* Puedes cargar una pequeña parte de tus datos, realizar una transformación y visualizar el resultado inmediatamente.
+* Si el resultado no es el esperado, corriges esa celda específica y la vuelves a ejecutar sin tener que procesar todo el programa nuevamente.
+
+### 3. Visualización In-situ
+
+Jupyter es capaz de renderizar gráficos directamente en el navegador. Cuando generas un gráfico con bibliotecas como *Matplotlib* o *Seaborn*, el Notebook lo muestra como parte del documento, lo cual es vital para el análisis estadístico que planeas realizar en tu proyecto.
+
+### 4. ¿Por qué es diferente a un editor de código común (como VS Code)?
+
+Mientras que un editor de código (IDE) está pensado para escribir aplicaciones de software completas y grandes, **Jupyter Notebook está diseñado para la experimentación, el análisis y la presentación**. Es una "bitácora" viva de tu proceso de pensamiento científico.
+
+### Resumen de la relación entre términos:
+
+* **Jupyter Notebook:** Es el formato de archivo (`.ipynb`) y la herramienta base.
+* **Anaconda:** Es el "distribuidor" que suele instalar Jupyter Notebook en tu computadora junto con todas las bibliotecas de ciencia de datos.
+* **Google Colab:** Es, esencialmente, **Jupyter Notebook ejecutándose en los servidores de Google**. Por eso, si aprendes a usar uno, ya sabes usar el otro.
+

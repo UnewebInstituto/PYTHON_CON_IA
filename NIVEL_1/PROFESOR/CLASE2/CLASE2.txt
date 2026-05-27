@@ -1,0 +1,288 @@
+https://es.wikipedia.org/wiki/Fortran
+
+
+sitio de descarga de ANACONDA
+https://www.anaconda.com/downloadvel
+
+
+activación del entorno virtual
+C:\Users\duque\Documents\Henry Duque\UNEWEB\PYTHON_CON_IA\NIVEL_1\PROFESOR>.venv\scripts\activate 
+
+
+activación del idlelib
+python -m idlelib
+
+/Python 3.12.2 (tags/v3.12.2:6abddd9, Feb  6 2024, 21:26:36) [MSC v.1937 64 bit (AMD64)] on win32
+Type "help", "copyright", "credits" or "license()" for more information.
+#LISTAS
+curso = []
+type(curso)
+<class 'list'>
+curso = list()
+type(curso)
+<class 'list'>
+curso = ['HENRY']
+curso
+['HENRY']
+len(curso)
+1
+curso.append('DAVID')
+curso
+['HENRY', 'DAVID']
+curso.extend(['JOSÉ','YONNY'])
+len(curso)
+4
+curso
+['HENRY', 'DAVID', 'JOSÉ', 'YONNY']
+curso[0]
+'HENRY'
+curso[-1]
+'YONNY'
+i = 0
+while i < len(curso):
+    curso[i]
+    i = i + 1
+
+    
+'HENRY'
+'DAVID'
+'JOSÉ'
+'YONNY'
+for nombre in curso:
+    nombre
+
+    
+'HENRY'
+'DAVID'
+'JOSÉ'
+'YONNY'
+curso.count('HENRY')
+1
+curso.append('HENRY')
+curso
+['HENRY', 'DAVID', 'JOSÉ', 'YONNY', 'HENRY']
+curso.count('HENRY')
+2
+curso.index('JOSÉ')
+2
+curso.index('HENRY')
+0
+curso.index('YONNY')
+3
+curso.insert(2,'YOLANDA')
+curso
+['HENRY', 'DAVID', 'YOLANDA', 'JOSÉ', 'YONNY', 'HENRY']
+curso.pop()
+'HENRY'
+curso
+['HENRY', 'DAVID', 'YOLANDA', 'JOSÉ', 'YONNY']
+curso.remove('YOLANDA')
+curso
+['HENRY', 'DAVID', 'JOSÉ', 'YONNY']
+curso.sort()
+curso
+['DAVID', 'HENRY', 'JOSÉ', 'YONNY']
+curso.reverse()
+curso
+['YONNY', 'JOSÉ', 'HENRY', 'DAVID']
+#TUPLAS
+nivel = ()
+type(nivel)
+<class 'tuple'>
+del nivel
+nivel = ('BAJO','MEDIO','ALTO')
+type(nivel)
+<class 'tuple'>
+nivel.count('MEDIO')
+1
+nivel.index('MEDIO')
+1
+nivel[0] = 'MINIMO'
+Traceback (most recent call last):
+  File "<pyshell#48>", line 1, in <module>
+    nivel[0] = 'MINIMO'
+TypeError: 'tuple' object does not support item assignment
+#DICCIONARIOS
+edades = {'HENRY': 57,'YONNY':24, 'DAVID':30,'JOSÉ':38}
+edades['HENRY']
+57
+# Nota : Método aplicado sobre la lista 'curso'
+curso
+['YONNY', 'JOSÉ', 'HENRY', 'DAVID']
+curso.clear()
+curso
+[]
+# Volvemos al diccionario 'edades'
+type(edades)
+<class 'dict'>
+edades.keys()
+dict_keys(['HENRY', 'YONNY', 'DAVID', 'JOSÉ'])
+edades.values()
+dict_values([57, 24, 30, 38])
+for nombre in edades:
+    nombre
+
+    
+'HENRY'
+'YONNY'
+'DAVID'
+'JOSÉ'
+for nombre in edades:
+    edades[nombre]
+
+    
+57
+24
+30
+38
+for nombre in edades:
+    nombre, ':', edades[nombre]
+
+    
+('HENRY', ':', 57)
+('YONNY', ':', 24)
+('DAVID', ':', 30)
+('JOSÉ', ':', 38)
+palabra = 'AUSTROLOPITECUS'
+palabra[0]
+'A'
+palabra[1]
+'U'
+palabra[1]2]
+SyntaxError: unmatched ']'
+palabra[2]
+'S'
+for letra in palabra:
+    letra
+
+    
+'A'
+'U'
+'S'
+'T'
+'R'
+'O'
+'L'
+'O'
+'P'
+'I'
+'T'
+'E'
+'C'
+'U'
+'S'
+edades['HENRY'] = 58
+edades
+{'HENRY': 58, 'YONNY': 24, 'DAVID': 30, 'JOSÉ': 38}
+for letra in palabra:
+    contar_letras = {letra:0}
+
+    
+contar_letras
+{'S': 0}
+for letra in palabra:
+    contar_letras = {letra:0}
+
+    
+contar_letras = {}
+contar_letras = dict()
+type(contar_letras)
+<class 'dict'>
+for letra in palabra:
+    contar_letras[letra] = 0
+
+    
+contar_letras
+{'A': 0, 'U': 0, 'S': 0, 'T': 0, 'R': 0, 'O': 0, 'L': 0, 'P': 0, 'I': 0, 'E': 0, 'C': 0}
+palabra.count('O')
+2
+for letra in palabra:
+    contar_letras[letra] = palabra.count(letra)
+
+    
+contar_letras
+{'A': 1, 'U': 2, 'S': 2, 'T': 2, 'R': 1, 'O': 2, 'L': 1, 'P': 1, 'I': 1, 'E': 1, 'C': 1}
+palabra = 'ESTERNOCLEIDOMASTOIDEO'
+contar_letras = dict()
+for letra in palabra:
+    contar_letras[letra] = palabra.count(letra)
+
+    
+contar_letras
+{'E': 4, 'S': 2, 'T': 2, 'R': 1, 'N': 1, 'O': 4, 'C': 1, 'L': 1, 'I': 2, 'D': 2, 'M': 1, 'A': 1}
+for letra in contar_letras:
+    letra,':',contar_letras(letra)
+
+    
+Traceback (most recent call last):
+  File "<pyshell#100>", line 2, in <module>
+    letra,':',contar_letras(letra)
+TypeError: 'dict' object is not callable
+for letra in contar_letras:
+    letra,':',contar_letras[letra]
+
+    
+('E', ':', 4)
+('S', ':', 2)
+('T', ':', 2)
+('R', ':', 1)
+('N', ':', 1)
+('O', ':', 4)
+('C', ':', 1)
+('L', ':', 1)
+('I', ':', 2)
+('D', ':', 2)
+('M', ':', 1)
+('A', ':', 1)
+#CONJUNTOS
+letras = set()
+type(letras)
+<class 'set'>
+letras = {}
+type(letras)
+<class 'dict'>
+letras = {'a','a','a','b','c','d','d','e'}
+type(letras)
+<class 'set'>
+letras
+{'d', 'e', 'a', 'b', 'c'}
+vocales = {'a','a','e','i','i','o','o','o','u'}
+vocales
+{'e', 'a', 'o', 'i', 'u'}
+#operaciones:
+"UNIÓN, INTERCEPCIÓN, DIFERENCIA Y DIFERENCIA SIMÉTRICA
+SyntaxError: unterminated string literal (detected at line 1)
+# UNIÓN, INTERCEPCIÓN, DIFERENCIA Y DIFERENCIA SIMÉTRICA
+letras - vocales
+{'d', 'c', 'b'}
+vocales - letras
+{'i', 'u', 'o'}
+# UNIÓN, INTERCEPCIÓN, DIFERENCIA (-) Y DIFERENCIA SIMÉTRICA
+letras.difference(vocales)
+{'d', 'c', 'b'}
+vocales.difference(letras)
+{'i', 'u', 'o'}
+letras&vocales
+{'e', 'a'}
+vocales&letras
+{'e', 'a'}
+letras.intersection(vocales)
+{'e', 'a'}
+vocales.intersection(letras)
+{'e', 'a'}
+# UNIÓN, INTERCEPCIÓN (&), DIFERENCIA (-) Y DIFERENCIA SIMÉTRICA
+vocales | letras
+{'d', 'a', 'o', 'i', 'u', 'e', 'b', 'c'}
+letras | vocales
+{'d', 'a', 'o', 'i', 'u', 'e', 'b', 'c'}
+letras.union(vocales)
+{'d', 'a', 'o', 'i', 'u', 'e', 'b', 'c'}
+vocales.union(letras)
+{'d', 'a', 'o', 'i', 'u', 'e', 'b', 'c'}
+# UNIÓN (|), INTERCEPCIÓN (&), DIFERENCIA (-) Y DIFERENCIA SIMÉTRICA
+vocales ^ letras
+{'d', 'u', 'o', 'b', 'c', 'i'}
+# es equivalente a:
+(letras - vocales)| (vocales - letras)
+{'d', 'u', 'o', 'b', 'c', 'i'}
+# UNIÓN (|), INTERCEPCIÓN (&), DIFERENCIA (-) Y DIFERENCIA SIMÉTRICA (^)
