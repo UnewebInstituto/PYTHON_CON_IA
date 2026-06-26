@@ -1,0 +1,160 @@
+https://numpy.org/
+
+https://matplotlib.org/stable/users/getting_started/
+
+https://pandas.pydata.org/docs/getting_started/index.html
+
+
+[['Billie Holiday', 'Jazz' ,1300000 ,27000000],
+ ['Jimmie Hendrix', 'Rock', 2700000, 70000000],
+ ['Miles DavJazzis' ,'Jazz', 1500000 ,48000000],
+ ['SIA' ,'Pop', 2000000, 74000000]]
+
+
+Para elevar tu proyecto al **Nivel 1**, combinaremos la estructura modular de la **Programación Orientada a Objetos (POO)** con la capacidad de cálculo masivo de **NumPy**.
+
+Este procesador encapsula los datos y el comportamiento, permitiendo manejar el conjunto de datos, calcular estadísticos y visualizar la distribución sin complicar el código principal.
+
+### Ejemplo: Procesador Estadístico con Visualización
+
+Para la visualización, utilizaremos `matplotlib`, la librería estándar que trabaja perfectamente con los arreglos de NumPy.
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+
+class ProcesadorEstadistico:
+    def __init__(self, nombre):
+        self.nombre = nombre
+        self.datos = None
+
+    def cargar_datos(self, datos):
+        # Almacenamos como arreglo NumPy para eficiencia 
+        self.datos = np.array(datos)
+        print(f"[{self.nombre}] Datos cargados: {len(self.datos)} elementos.")
+
+    def obtener_tendencia_central(self):
+        # Álgebra lineal y estadística básica vectorizada
+        return {
+            "media": np.mean(self.datos),
+            "mediana": np.median(self.datos),
+            "desviacion": np.std(self.datos)
+        }
+
+    def graficar_distribucion(self):
+        plt.hist(self.datos, bins=10, color='skyblue', edgecolor='black')
+        plt.title(f"Distribución de Frecuencia - {self.nombre}")
+        plt.xlabel("Valor")
+        plt.ylabel("Frecuencia")
+        plt.show()
+
+# --- Ejecución del Proyecto ---
+
+# 1. Generación de 100 datos aleatorios
+datos_aleatorios = np.random.normal(loc=50, scale=15, size=100)
+
+# 2. Uso del procesador
+procesador = ProcesadorEstadistico("Analizador-Nivel1")
+procesador.cargar_datos(datos_aleatorios)
+
+# 3. Obtención de métricas
+metricas = procesador.obtener_tendencia_central()
+print(f"Métricas obtenidas: {metricas}")
+
+# 4. Generación del gráfico
+procesador.graficar_distribucion()
+
+```
+
+### Por qué esta estructura es escalable y profesional:
+
+* 
+**Encapsulamiento (POO):** La lógica de cálculo y la configuración del gráfico están dentro de métodos (`obtener_tendencia_central`, `graficar_distribucion`), lo que mantiene tu código principal limpio.
+
+
+* 
+**Vectorización (NumPy):** Aunque 100 datos son pocos, al usar `np.mean` o `np.median`, el procesador está listo para recibir 10 millones de datos sin cambiar una sola línea de lógica.
+
+
+* 
+**Modularidad:** Si necesitas añadir un nuevo estadístico (ej. curtosis o varianza), simplemente añades un método a la clase `ProcesadorEstadistico` sin afectar la carga de datos o la visualización.
+
+
+
+Este diseño es la base sobre la que construirás agentes de IA más complejos, donde el "procesamiento de datos" es solo el primer paso antes de pasar la información a modelos de aprendizaje.
+
+
+/// ACTAULIZACIÓN PARA LECTURA DE ARCHIVO DE EXTENSIÓN .CSV
+
+id,valor_objetivo,fecha
+1,45.2,2026-06-01
+2,52.8,2026-06-01
+3,48.5,2026-06-02
+4,60.1,2026-06-02
+5,39.4,2026-06-03
+
+///
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+class ProcesadorEstadistico:
+    def __init__(self, nombre):
+        self.nombre = nombre
+        self.datos = None
+
+    # Nuevo método: Generación de datos de prueba
+    def crear_data_prueba(self, n=100, media=50, desv=15):
+        """Genera datos sintéticos usando NumPy para pruebas rápidas."""
+        self.datos = np.random.normal(loc=media, scale=desv, size=n)
+        print(f"[{self.nombre}] Datos de prueba generados: {n} elementos.")
+
+    # Nuevo método: Lectura de CSV
+    def cargar_desde_csv(self, ruta_archivo, columna):
+        """Lee un archivo CSV y extrae la columna objetivo como un arreglo NumPy."""
+        try:
+            df = pd.read_csv(ruta_archivo)
+            self.datos = df[columna].values # Conversión a arreglo NumPy
+            print(f"[{self.nombre}] Datos cargados desde CSV: {len(self.datos)} elementos.")
+        except Exception as e:
+            print(f"Error al cargar el archivo: {e}")
+
+    def obtener_tendencia_central(self):
+        if self.datos is None: return "No hay datos cargados."
+        return {
+            "media": np.mean(self.datos),
+            "mediana": np.median(self.datos),
+            "desviacion": np.std(self.datos)
+        }
+
+    def graficar_distribucion(self):
+        if self.datos is None: return
+        plt.hist(self.datos, bins=15, color='teal', alpha=0.7, edgecolor='black')
+        plt.title(f"Distribución - {self.nombre}")
+        plt.show()
+
+# --- Ejemplo de ejecución ---
+procesador = ProcesadorEstadistico("Agente-Analitico")
+
+# Opción A: Crear data de prueba (100 datos por defecto)
+procesador.crear_data_prueba(n=100)
+
+# Opción B: Cargar CSV (descomentar para usar)
+# procesador.cargar_desde_csv('datos.csv', 'valor_objetivo')
+
+print(procesador.obtener_tendencia_central())
+procesador.graficar_distribucion()
+
+/// GENERAR ARCHIVO DE PRUEBA MANUALMENTE
+
+# Crea un archivo temporal para probar
+with open('prueba.csv', 'w') as f:
+    f.write("id,valor_objetivo,fecha\n1,45.2,2026-06-01\n2,52.8,2026-06-01\n3,48.5,2026-06-02")
+
+# Ahora intenta cargarlo
+procesador.cargar_desde_csv('prueba.csv', 'valor_objetivo')
+print(procesador.obtener_tendencia_central())
+
+///////
+

@@ -1,0 +1,344 @@
+https://www.kaggle.com/
+
+https://www.kaggle.com/datasets
+
+///////////////////////
+
+Un **dataset de Kaggle** es un conjunto de datos estructurados, semiestructurados o no estructurados que se encuentran alojados en la plataforma Kaggle, la cual es una comunidad global de científicos de datos y entusiastas del *machine learning*.
+
+Estos datasets son el punto de partida fundamental ("el cimiento") para el desarrollo de proyectos de análisis de datos. Aquí te detallo qué los caracteriza:
+
+* 
+**Diversidad de temas**: Contienen información sobre diversas áreas como finanzas, salud o marketing.
+
+* 
+**Utilidad práctica**: Permiten transformar datos crudos en historias visuales o modelos predictivos.
+
+* 
+**Características técnicas**: Para ser efectivos, especialmente en proyectos de nivel 2, los datasets ideales deben contar con dimensiones temporales y categóricas que faciliten el análisis de tendencias.
+
+* **Ejemplos comunes**:
+**** USARERMOS: E-Commerce Sales ****
+
+* 
+**e-Commerce Sales**: Útiles para analizar ventas por mes o categoría.
+
+* 
+**Netflix Movies & TV Shows**: Ideales para observar el crecimiento de contenido por año o país.
+
+* 
+**Global Cryptocurrency Prices**: Utilizados para estudiar tendencias de precios y volatilidad.
+
+
+En resumen, un dataset de Kaggle es una herramienta de aprendizaje y experimentación que permite a los usuarios poner en práctica etapas como la ingesta, limpieza, análisis exploratorio (EDA) y visualización de datos.
+
+///////////////////////
+
+Para obtener el archivo `ecommerce_sales.csv` (o cualquier dataset similar para tus proyectos de Ciencia de Datos), la fuente principal y más recomendada es **Kaggle**. Aquí te explico cómo conseguirlo:
+
+### Pasos para obtener el dataset:
+
+1. 
+**Ingresa a Kaggle:** Visita [kaggle.com](https://www.kaggle.com/). Si no tienes una cuenta, deberás crear una de forma gratuita.
+
+2. 
+**Utiliza el buscador:** En la barra de búsqueda de la página principal, escribe términos como `"e-Commerce Sales"` o `"Sales Data"`.
+
+3. **Filtra por tipo:** En el menú de resultados, puedes filtrar para ver solo **"Datasets"**.
+4. **Selecciona el archivo:** Busca uno que tenga archivos en formato `.csv` (que son los que Pandas puede leer directamente).
+* 
+*Nota:* Asegúrate de que el dataset tenga columnas de **fecha** y **categorías**, ya que son fundamentales para realizar el análisis de tendencias que requiere tu Proyecto de Nivel 2.
+
+5. **Descarga:** Haz clic en el botón **"Download"** (generalmente ubicado en la parte superior derecha de la página del dataset). Esto descargará un archivo comprimido (`.zip`) que, al extraerlo, contendrá tu archivo `ecommerce_sales.csv`.
+
+### Alternativa para usuarios avanzados (API de Kaggle)
+
+Si ya tienes instalada la librería `kaggle` en tu terminal, puedes descargar el dataset sin entrar a la web mediante este comando:
+
+```bash
+kaggle datasets download -d nombre-del-usuario/nombre-del-dataset
+
+```
+
+### Recomendación para tu proyecto
+
+Como estás trabajando en el **Proyecto de Nivel 2**, busca específicamente datasets que no solo tengan ventas, sino que también incluyan variables como:
+
+* 
+**Fecha de pedido (`Order Date`):** Para realizar el análisis de tendencias temporales.
+
+
+* 
+**Categoría de producto:** Para poder hacer los gráficos de distribución (como el *treemap*).
+
+
+* 
+**Precio y Cantidad:** Para calcular los ingresos totales.
+
+Una vez descargado, recuerda colocarlo en la misma carpeta donde tienes tu script de Python para que `pd.read_csv("ecommerce_sales.csv")` funcione correctamente sin errores de ruta.
+
+///////////////////////
+
+Para ejecutar un **Proyecto de Nivel 2: Informe Interactivo de Tendencias**, el objetivo es transformar un dataset crudo de Kaggle en un *storytelling* visual. Aquí tienes una guía estructurada para desarrollar este proyecto con éxito.
+
+---
+
+### 1. Selección del Dataset (El "Cimiento")
+
+Para este nivel, busca un dataset en Kaggle que tenga dimensiones temporales y categóricas. Buenos ejemplos:
+
+* **e-Commerce Sales:** (Para analizar tendencias de ventas por mes/categoría).
+* **Netflix Movies & TV Shows:** (Para ver crecimiento de contenido por año/país).
+* **Global Cryptocurrency Prices:** (Para tendencias de precios y volatilidad).
+
+---
+
+### 2. Estructura del Informe (El "Storytelling")
+
+Un informe interactivo debe responder a preguntas de negocio. Divide tu contenido en estas secciones:
+
+#### A. Limpieza y Preparación (Pandas)
+
+Antes de analizar, garantiza la integridad.
+
+* **Técnica:** Convertir columnas de fecha a formato `datetime` y eliminar duplicados.
+
+```python
+import pandas as pd
+df = pd.read_csv("dataset.csv")
+df['fecha'] = pd.to_datetime(df['fecha'])
+df = df.dropna(subset=['precio', 'ventas'])
+
+```
+
+#### B. Análisis de Tendencias (La "Magia")
+
+Agrupa los datos para ver la evolución en el tiempo.
+
+* **Agrupación temporal:** `df.groupby(df['fecha'].dt.to_period('M')).sum()`
+* **Visualización interactiva:** Usa `Plotly Express` en lugar de `Matplotlib`, ya que permite al usuario filtrar y hacer zoom.
+
+# ****
+Nota: Se usará Matplotlib, dado que Plotly Express, requiere del
+pago de licencia y los créditos de este son hasta 10 despliegues
+gratuitos.
+# ****
+
+---
+
+### 3. Ejemplo Práctico: Informe de Ventas Mensuales
+
+Si tu dataset es de ventas, tu informe debe incluir:
+
+1. **KPIs Principales (Tarjetas de resumen):**
+* Ventas totales.
+* Mes de mejor rendimiento.
+* Producto estrella.
+
+
+2. **Gráfico de Tendencia (Línea):** Evolución de ingresos mensuales.
+3. **Gráfico de Distribución (Categorías):** *Treemap* de ventas por región o categoría de producto.
+
+#
+# No se va a usar, para más detalles a futuro:
+# https://plotly.com/
+# https://plotly.com/pricing/
+# En su lugar seaborn y matplotlib
+```python
+import plotly.express as px
+
+# Gráfico interactivo
+fig = px.line(ventas_mensuales, x='mes', y='total', 
+              title="Tendencia de Ventas 2025",
+              markers=True)
+fig.show()
+
+```
+
+---
+
+### 4. Herramientas para la Interactividad
+
+Para que sea un "Informe Interactivo", no basta con imágenes estáticas. Debes usar uno de estos frameworks de Python:
+
+* **Streamlit (Recomendado):** Es la forma más rápida de convertir scripts de Python en una aplicación web.
+* Permite añadir `st.selectbox` o `st.slider` para que el usuario filtre el mercado que desea analizar.
+
+
+* **Plotly Dash:** Si buscas una personalización extrema y nivel profesional.
+
+---
+
+### 5. Resumen del Flujo de Trabajo (El "Workflow")
+
+| Etapa | Objetivo | Herramienta |
+| --- | --- | --- |
+| **Ingesta** | Cargar el dataset de Kaggle | Pandas |
+| **EDA** | Detectar qué tendencia es relevante | Seaborn / Pandas |
+| **Procesamiento** | Agrupar por fechas o categorías | Pandas |
+| **Visualización** | Crear gráficos interactivos | Plotly |
+| **Despliegue** | Crear la app web del informe | Streamlit |
+
+---
+
+### Consejos Profesionales para tu Proyecto
+
+1. **Enfócate en la pregunta:** No hagas gráficos por hacer. Si el dataset es de películas, tu informe debe responder: *"¿En qué género se está invirtiendo más dinero últimamente?"*.
+2. **Añade "Drill-down":** Permite que, al hacer clic en una categoría (ej. "Electrónica"), el gráfico se actualice automáticamente para mostrar solo los sub-productos de esa categoría.
+3. **Documentación:** Incluye un pequeño archivo `README.md` explicando cómo instalaste las dependencias y qué hallazgos interesantes encontraste en los datos.
+
+Nota:
+Dataset de Kaggle
+Temas: finanzas, salud, marketing.
+
+////////////////////////////////////
+
+Proyecto de **Informe Interactivo de Tendencias. 
+Ahora no solo analizaremos cuánto se vende, sino **qué tan rentable es** y **cómo influyen las dimensiones geográficas y de pago**.
+
+Aquí tienes la estructura:
+
+---
+
+### 1. Ingesta y Limpieza (Pandas)
+
+Con columnas como `Discount` y `Profit`, es vital asegurar que sean numéricas para poder realizar cálculos financieros precisos.
+
+```python
+import pandas as pd
+
+df = pd.read_csv("ecommerce_sales_details.csv")
+
+# Convertir fechas y asegurar tipos numéricos
+df['Order Date'] = pd.to_datetime(df['Order Date'])
+cols_numericas = ['Quantity', 'Unit Price', 'Discount', 'Sales', 'Profit']
+df[cols_numericas] = df[cols_numericas].apply(pd.to_numeric)
+
+```
+
+### 2. Análisis Exploratorio (EDA)
+
+Ahora podemos responder preguntas de negocio más profundas:
+
+* **Rentabilidad por Categoría:** ¿Qué categoría nos deja más margen de ganancia?
+* **Análisis de Descuentos:** ¿Los descuentos altos están afectando el `Profit` final?
+
+```python
+# Calcular margen de beneficio
+df['Profit Margin'] = (df['Profit'] / df['Sales']) * 100
+
+# Análisis rápido: Profit por Categoría
+profit_por_cat = df.groupby('Category')['Profit'].sum().reset_index()
+
+```
+
+### 3. Procesamiento (Agrupación Avanzada)
+
+Agrupamos por dimensiones adicionales para que el usuario pueda filtrar por región o modo de pago.
+
+```python
+# Agrupación multidimensional para el dashboard
+tendencia_geo = df.groupby(['Order Date', 'Region', 'Payment Mode'])[['Sales', 'Profit']].sum().reset_index()
+
+```
+
+### 4. Visualización Interactiva (Plotly)
+
+Usamos `Plotly` para crear gráficos que permitan comparar ventas vs. ganancias. (No aplicado)
+NOTA: Se ha empleado Matplotlib y Seaborn, para la producción de 
+los gráficos
+
+```python
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Configuración de estética
+plt.figure(figsize=(10, 6))
+
+# Creación del gráfico de dispersión
+
+scatter = sns.scatterplot(
+    data=df, 
+    x='Sales', 
+    y='Profit', 
+    hue='Category', 
+    size='Quantity', 
+    sizes=(20, 200),  # Define el rango de tamaños de los puntos
+    alpha=0.7         # Transparencia para ver puntos superpuestos
+)
+
+# Títulos y etiquetas
+plt.title("Relación Ventas vs. Ganancia por Producto")
+plt.xlabel("Ventas")
+plt.ylabel("Ganancia")
+plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left') # Mueve la leyenda fuera del gráfico
+plt.tight_layout()
+plt.show()
+
+```
+
+### 5. Despliegue con Interactividad (Streamlit)
+
+Aquí es donde aplicamos el **Drill-down** solicitado.
+
+#
+# Se requiere instalación en el entorno virtual de 
+# la dependencia. 
+# No se puede ejecutar desde el IDLE o Jupyter. Debe
+# correrse como aplicación, ejecutando desde el prompt
+# el comando:
+# streamlit run app.py
+#
+# https://streamlit.io/
+#
+# pip install streamlit
+#
+# Ejecución del código:
+# > streamlit run app.py
+#
+
+
+```python
+import streamlit as st
+
+st.title("Dashboard Ejecutivo de Ventas")
+
+# Filtros laterales
+region = st.sidebar.selectbox("Selecciona Región:", df['Region'].unique())
+modo_pago = st.sidebar.selectbox("Modo de Pago:", df['Payment Mode'].unique())
+
+# Filtrado dinámico
+df_f = df[(df['Region'] == region) & (df['Payment Mode'] == modo_pago)]
+
+# Métricas clave (KPIs)
+col1, col2 = st.columns(2)
+col1.metric("Ventas Totales", f"${df_f['Sales'].sum():,.2f}")
+col2.metric("Ganancia Total", f"${df_f['Profit'].sum():,.2f}")
+
+# Gráfico de tendencia filtrado
+st.line_chart(df_f.groupby('Order Date')['Sales'].sum())
+
+```
+
+---
+
+### Resumen del Flujo de Trabajo Adaptado
+
+| Etapa | Objetivo con nuevas columnas | Herramienta |
+| --- | --- | --- |
+| **Ingesta** | Cargar dataset con 14 columnas | Pandas |
+| **EDA** | Calcular `Profit Margin` y detectar ventas con pérdidas | Pandas |
+| **Procesamiento** | Agrupar por `Region` y `Payment Mode` | Pandas |
+| **Visualización** | Scatter plot (Ventas vs Profit) | Plotly |
+| **Despliegue** | Dashboard con KPIs y filtros de `Region` | Streamlit |
+
+### Consejos para este nuevo nivel:
+
+* 
+**Drill-down geográfico:** Permite que al seleccionar una `Region`, el mapa o gráfico de barras se actualice para mostrar las `Cities` dentro de esa región.
+
+
+* **Análisis de Descuentos:** Crea un gráfico que compare `Discount` vs `Profit`. A veces, un descuento alto en una categoría específica puede estar destruyendo tu rentabilidad.
+* 
+**Documentación:** Como se sugiere, explica en tu `README.md` cómo el `Payment Mode` afecta la velocidad de recuperación de capital.

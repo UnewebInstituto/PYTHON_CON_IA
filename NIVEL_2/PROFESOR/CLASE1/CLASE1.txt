@@ -1,0 +1,95 @@
+https://numpy.org/install/
+pip install numpy
+
+https://matplotlib.org/stable/install/index.html
+pip install matplotlib
+
+piphttps://pandas.pydata.org/
+pip install pandas
+
+https://pandas.pydata.org/docs/ 
+
+
+La manipulación de datos con **Pandas** es el núcleo de la preparación de información (Nivel II). Esta librería permite transformar datos crudos en estructuras listas para modelos de IA.
+
+A continuación, desarrollo los tres pilares fundamentales de la manipulación de DataFrames.
+
+---
+
+### 1. Manipulación de DataFrames
+
+La manipulación implica seleccionar, filtrar y transformar la estructura de los datos.
+
+* **Ejemplo:** Supongamos que tenemos un dataset de ventas y queremos filtrar solo las transacciones superiores a 100 y seleccionar columnas específicas.
+
+```python
+import pandas as pd
+
+# Crear DataFrame
+data = {'producto': ['A', 'B', 'A', 'C'], 'ventas': [120, 80, 150, 40]}
+df = pd.DataFrame(data)
+
+# Filtrado y selección
+ventas_altas = df[df['ventas'] > 100][['producto', 'ventas']]
+print(ventas_altas)
+
+```
+
+---
+
+### 2. Limpieza de datos faltantes
+
+Los datos faltantes (`NaN`) son comunes en datasets reales. Ignorarlos puede sesgar el análisis.
+
+* **Ejemplo:** Detectar nulos y rellenarlos con la media de la columna.
+
+```python
+import numpy as np
+
+# Simulamos datos faltantes
+df['ventas'] = [120, np.nan, 150, 40]
+
+# Opción A: Eliminar filas con nulos
+# df_limpio = df.dropna()
+
+# Opción B: Rellenar con la media
+media_ventas = df['ventas'].mean()
+df['ventas'] = df['ventas'].fillna(media_ventas)
+
+print(df)
+
+```
+
+---
+
+### 3. Normalización
+
+La normalización escala los datos a un rango específico (usualmente 0 a 1) para que los algoritmos de IA no den más peso a variables con números grandes.
+
+* **Ejemplo:** Normalización Min-Max.
+
+```python
+# Fórmula: (x - min) / (max - min)
+min_v = df['ventas'].min()
+max_v = df['ventas'].max()
+
+df['ventas_norm'] = (df['ventas'] - min_v) / (max_v - min_v)
+
+print(df[['ventas', 'ventas_norm']])
+
+```
+
+---
+
+### ¿Por qué este proceso es crítico?
+
+* 
+**Pandas:** Es la herramienta estándar para manejar DataFrames, permitiendo la limpieza y manipulación a gran escala.
+
+
+* 
+**Calidad de datos:** Un modelo de IA es tan bueno como los datos que lo alimentan; sin normalización y limpieza, los patrones de aprendizaje serán erróneos.
+
+
+* 
+**Flujo Nivel II:** Estas técnicas son el paso previo esencial antes de realizar el Análisis Exploratorio de Datos (EDA) y la aplicación de modelos predictivos.

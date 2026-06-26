@@ -1,0 +1,27 @@
+Nivel III: Machine Learning (Aprendizaje Automático)
+Este nivel se enfoca en los algoritmos que permiten a la máquina aprender.
+• Introducción a Scikit-Learn: La librería estándar para Machine Learning en Python.
+• Aprendizaje Supervisado:
+    - Regresión Lineal y Logística (Predicciones numéricas y clasificaciones).
+    - Árboles de Decisión y Bosques Aleatorios (Random Forest).
+• Aprendizaje No Supervisado: Clustering con K-Means para segmentación de clientes.
+• Evaluación de Modelos: Matrices de confusión, precisión, recall y validación cruzada.
+• Proyecto Nivel 3: Desarrollo de un modelo predictivo para detectar fraudes financieros o predecir ventas.
+
+Tentativas:
+
+https://www.kaggle.com/datasets/littlesaplings/grocery-sales-forecasting-parquet/data?select=transactions.parquet
+
+IMPORTANTE:
+
+https://www.kaggle.com/competitions/favorita-grocery-sales-forecasting/data
+
+**********************************
+Objetivo: Producción de alimentos. 
+Área de importancia:
+- Laboratorio : Análisis de materia prima. Identificar calidad.
+Identificación, por lotes.
+Por ejemplo: Arróz normal, esmeralda, parbolizado, otros
+**********************************
+
+

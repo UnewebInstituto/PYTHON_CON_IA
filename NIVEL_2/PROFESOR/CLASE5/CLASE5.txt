@@ -1,0 +1,349 @@
+https://www.sqlalchemy.org/
+
+https://docs.sqlalchemy.org/en/20/intro.html
+
+///// Preparación del ambiente de BBDD /////
+Para almacenar los datos de `datos_pacientes.txt` en una base de datos relacional (PostgreSQL o MySQL), primero debemos definir la estructura de la tabla y luego realizar la importación.
+
+### 1. Definición de la Tabla
+
+La estructura es idéntica para ambos sistemas, ya que los tipos de datos son estándar.
+
+```sql
+CREATE TABLE pacientes (
+    id INT PRIMARY KEY,
+    edad INT,
+    glucosa FLOAT,
+    presion FLOAT,
+    estado_salud VARCHAR(20)
+);
+
+```
+---
+
+### 2. Instrucciones para importar los datos
+
+Como el archivo fuente es un CSV (valores separados por comas), la forma más eficiente de importar los 100 registros es utilizando los comandos nativos de carga masiva, que son mucho más rápidos que insertar fila por fila.
+
+#### Para PostgreSQL
+
+PostgreSQL cuenta con el comando `COPY`, que es extremadamente veloz. Debes asegurarte de que el archivo `datos_pacientes.csv` sea accesible por el servidor.
+
+Nota: Si el servidor no tiene permisos para leer el archivo directamente, puedes usar `\copy` desde la terminal de `psql`.
+
+-- creación de BBDD (ambas)
+CREATE DATABASE nivel2_clase5;
+
+-- MySQL
+USE nivel2_clase5;
+
+-- POSTGRESQL;
+\c nivel2_clase5
+
+#### Para PostgreSQL
+
+```sql
+\copy pacientes(id, edad, glucosa, presion, estado_salud) FROM 'C:/Users/duque/Documents/Henry Duque/UNEWEB/PYTHON_CON_IA/NIVEL_2/PROFESOR/CLASE5/datos_pacientes.csv' WITH (FORMAT csv, HEADER true, DELIMITER ',');
+
+```
+#### Para MySQL
+
+En MySQL, el comando equivalente es `LOAD DATA INFILE`.
+
+```sql
+LOAD DATA INFILE 'C:/Users/duque/Documents/Henry Duque/UNEWEB/PYTHON_CON_IA/NIVEL_2/PROFESOR/CLASE5/datos_pacientes.csv'
+INTO TABLE pacientes
+FIELDS TERMINATED BY ',' 
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
+
+```
+
+Nota: Es posible que necesites habilitar `local_infile` en la configuración de MySQL para permitir la carga desde archivos locales.
+
+---
+
+### Consideraciones adicionales para tu flujo de trabajo
+
+* 
+**Integridad:** Como se menciona en las buenas prácticas, las bases de datos SQL garantizan una alta integridad de los tipos de datos , lo que evita que los números sean leídos erróneamente como texto, algo común en archivos CSV.
+
+### 1. Preparación del entorno
+Necesitas instalar los controladores (*drivers*) necesarios:
+
+**************** IMPORTANTE ***********************
+* Para MySQL: `pip install mysql-connector-python`
+* Para PostgreSQL: `pip install psycopg2`
+* Ambos: `pip install sqlalchemy`
+***************************************************
+
+* 
+**Conexión desde Python:** Una vez que los datos estén en la base de datos, recuerda que para trabajar con ellos en tu modelo de *Machine Learning* , deberás usar `SQLAlchemy` para conectarte y cargar los datos directamente a un *DataFrame* de Pandas:
+
+CASO POSTGRESQL
+```python
+import pandas as pd
+from sqlalchemy import create_engine
+
+# Cadena de conexión (recuerda usar variables de entorno para seguridad) 
+# db_engine = create_engine('postgresql+psycopg2://usuario:pass@localhost:5432/mi_db')
+
+ADAPTADA A LA CONFIGURACIÓN:
+db_engine1 = create_engine('postgresql+psycopg2://postgres:1234567@localhost:5432/bd_prueba')
+
+# Cargar los datos para tu EDA o modelo
+df1 = pd.read_sql("SELECT * FROM pacientes", db_engine1)
+
+print(df1)
+
+////////////////////////////////////////////
+CASO MARIADB/MySQL
+///////////////////////////////////////////
+import pandas as pd
+from sqlalchemy import create_engine
+
+# Cadena de conexión para MySQL (root sin contraseña)
+# Formato: mysql+mysqlconnector://usuario@host:puerto/base_de_datos
+db_engine2 = create_engine('mysql+mysqlconnector://root@localhost:3306/bd_prueba')
+
+# Lectura del DataFrame (el código de Pandas es idéntico)
+df2 = pd.read_sql("SELECT * FROM pacientes", db_engine2)
+
+# Mostrar el resultado
+print(df2)
+
+////////////////////////////////////////////
+
+Consideraciones clave para MySQL:
+
+Dialecto + Driver: Se utiliza mysql+mysqlconnector para indicar a SQLAlchemy que utilice el conector nativo de MySQL.  
+
+Contraseña vacía: Al ser root sin contraseña, la cadena se estructura como
+root@localhost. Si en el futuro agregas una contraseña, la sintaxis sería root:tu_password@localhost.
+
+Puerto: MySQL utiliza habitualmente el puerto 3306, a diferencia del 5432 que usa PostgreSQL.  
+
+Interoperabilidad: Como Pandas utiliza SQLAlchemy como intermediario, una vez establecido el db_engine, el resto de tu lógica para análisis de datos (EDA, entrenamiento de modelos, etc.) permanece exactamente igual, sin importar si los datos vienen de PostgreSQL o MySQL.  
+
+///////////////////////////////////////////
+
+La conexión a bases de datos relacionales es el primer paso crítico en cualquier proyecto de Ciencia de Datos real. A diferencia de trabajar con archivos CSV locales, aquí los datos viven en un servidor y debes consultarlos utilizando **SQL (Structured Query Language)**.
+
+Para conectar Python con MySQL o PostgreSQL, la librería estándar es **`SQLAlchemy`** (que actúa como motor de conexión) combinada con **`Pandas`** para convertir el resultado de la consulta directamente en un *DataFrame*.
+
+---
+
+### 2. El proceso de conexión y extracción
+
+El procedimiento siempre sigue tres pasos:
+
+1. **Crear el motor:** Establecer las credenciales de acceso.
+2. **Ejecutar la consulta (Query):** Escribir SQL para traer solo los datos que necesitas.
+3. **Cargar en Pandas:** Convertir el resultado a formato tabular.
+
+```python
+import pandas as pd
+from sqlalchemy import create_engine
+
+# 1. Configuración de conexión (Credenciales)
+# Formato: dialecto+driver://usuario:password@host:puerto/nombre_base_de_datos
+db_connection_str = 'postgresql+psycopg2://usuario:contraseña@localhost:5432/mi_base_de_datos'
+db_connection = create_engine(db_connection_str)
+
+# 2. Definir la consulta SQL
+# Recomendación: No hagas 'SELECT *', trae solo las columnas necesarias para el modelo
+query = """
+SELECT id, edad, glucosa, presion 
+FROM pacientes 
+WHERE edad > 50
+"""
+
+
+# 3. Extracción directa a un DataFrame de Pandas
+# Caso de estudio adaptado
+df = pd.read_sql(query, db_connection)
+
+query = """
+SELECT id, edad, glucosa, presion 
+FROM pacientes 
+WHERE edad > 50
+"""
+
+df1 = pd.read_sql(query, db_engine1) # PostgreSQL
+df2 = pd.read_sql(query, db_engine2) # MySQL/MARIADB
+
+print(df.head())
+
+```
+
+---
+
+### 3. Buenas prácticas para IA
+
+Cuando extraes datos desde una base de datos para alimentar un modelo, ten en cuenta lo siguiente:
+
+* **Filtrado en el servidor:** No traigas toda la tabla a tu memoria RAM si no es necesario. Filtra por fechas, categorías o usuarios directamente en la consulta SQL (`WHERE`, `GROUP BY`).
+* **Manejo de Memoria:** Si la base de datos es gigantesca (millones de filas), usa el parámetro `chunksize` en `read_sql` para procesar los datos por lotes y no saturar la memoria de tu computadora.
+* **Seguridad:** Nunca escribas contraseñas directamente en tu código (como en el ejemplo de arriba). Utiliza **variables de entorno** (`os.environ.get('DB_PASSWORD')`) para mantener tus credenciales protegidas.
+
+--- Ejemplos de buenas practicas ---
+Aquí tienes ejemplos prácticos para implementar estas buenas prácticas en tu flujo de trabajo de Ciencia de Datos:
+
+### 1. Filtrado en el servidor
+
+No traigas toda la tabla a tu memoria RAM si no es necesario. Filtra por fechas, categorías o usuarios directamente en la consulta SQL usando `WHERE` o `GROUP BY`.
+
+* **Incorrecto (Carga todo):**
+```python
+# Carga millones de filas innecesariamente
+df = pd.read_sql("SELECT * FROM pacientes", db_engine1)
+
+```
+
+* **Correcto (Filtro eficiente):**
+```python
+# Filtra desde el servidor antes de traer los datos a Python
+query = """
+SELECT id, edad, glucosa 
+FROM pacientes 
+WHERE edad >= 50 AND estado_salud = 'Enfermo'
+"""
+df1 = pd.read_sql(query, db_engine1)
+
+```
+
+---
+
+### 2. Manejo de Memoria
+
+Si la base de datos es gigantesca (millones de filas), usa el parámetro `chunksize` en `read_sql` para procesar los datos por lotes y no saturar la memoria de tu computadora.
+
+* **Ejemplo de procesamiento por bloques:**
+```python
+query = "SELECT * FROM pacientes"
+
+# Procesa bloques de 25 registros a la vez
+query = "SELECT * FROM pacientes"
+resultado_parcial = []
+for chunk in pd.read_sql(query, db_engine1, chunksize=25):
+    # Realiza transformaciones o cálculos por cada bloque
+    resultado_parcial_tmp = chunk.groupby('estado_salud')['edad'].mean()
+    resultado_parcial.append(resultado_parcial_tmp)
+    print(f"Procesado bloque de {len(chunk)} filas.")
+
+print(resultado_parcial)
+
+---
+
+### 3. Seguridad
+
+Nunca escribas contraseñas directamente en tu código. Utiliza **variables de entorno** (`os.environ.get('DB_PASSWORD')`) para mantener tus credenciales protegidas.
+
+* **Ejemplo seguro usando `os.environ`:**
+```python
+import os
+from sqlalchemy import create_engine
+
+# Recupera la contraseña desde una variable de entorno configurada en tu sistema
+db_pass = os.environ.get('DB_PASSWORD')
+
+# Construye la cadena de conexión dinámicamente
+connection_str = f'postgresql+psycopg2://usuario:{db_pass}@localhost:5432/bd_prueba'
+db_engine = create_engine(connection_str)
+
+```
+////////////////////////////////////////////////////////
+Consideraciones, respecto a la definición de variables:
+////////////////////////////////////////////////////////
+
+Para definir una variable de entorno en Windows de manera que sea accesible por `os.environ.get('DB_PASSWORD')` en Python, tienes dos formas principales: una permanente (a través de la configuración del sistema) y una temporal (a través de la terminal).
+
+### 1. Opción Permanente (Recomendada)
+
+Esta opción hace que la variable esté disponible en cualquier terminal o IDE que abras en el futuro.
+
+1. Presiona la tecla **Windows** y escribe: **"Editar las variables de entorno del sistema"**.
+2. Haz clic en el botón que dice **Variables de entorno...** en la parte inferior de la ventana.
+3. En la sección **Variables de usuario** (la parte superior), haz clic en el botón **Nueva...**.
+4. En "Nombre de la variable", escribe: `DB_PASSWORD`.
+5. En "Valor de la variable", escribe tu contraseña (ej. `1234567`).
+6. Haz clic en **Aceptar** en todas las ventanas para guardar los cambios.
+
+**Importante:** Debes cerrar y volver a abrir tu terminal (CMD, PowerShell o VS Code) para que reconozcan el cambio, ya que las variables de entorno se cargan al iniciar el proceso de la terminal.
+
+---
+
+### 2. Opción Temporal (Para pruebas rápidas)
+
+Si solo quieres probar el código sin modificar la configuración global del sistema, puedes definirla en la misma terminal donde vas a ejecutar tu script de Python.
+
+* **Si usas PowerShell:**
+```powershell
+$env:DB_PASSWORD = "1234567"
+python tu_script.py
+
+```
+
+* **Si usas el Símbolo del sistema (CMD):**
+```cmd
+set DB_PASSWORD=1234567
+python tu_script.py
+
+```
+Nota: Si se está utilizando el IDLE, la activación de dicho entorno, debe efectuarse
+desde la misma terminal, donde se declaró la variable temporal.
+
+
+### ¿Cómo verificar que funciona?
+
+Puedes abrir un script de Python en esa misma terminal y ejecutar lo siguiente:
+
+```python
+import os
+
+db_pass = os.environ.get('DB_PASSWORD')
+if db_pass:
+    print(f"La contraseña se cargó correctamente: {db_pass}")
+else:
+    print("La variable no se encontró.")
+
+```
+
+**Nota:** Si utilizas herramientas como **VS Code**, recuerda que tras cambiar las variables de forma permanente, debes reiniciar completamente el editor (cerrarlo y abrirlo) para que el entorno de desarrollo actualice la lista de variables disponibles.
+
+
+**Consejo:** Antes de lanzar una consulta pesada en una base de datos de producción, siempre pruébala con un `LIMIT 10` al final. Esto te permitirá confirmar que la sintaxis es correcta y que los nombres de las columnas son los esperados sin arriesgarte a bloquear el servidor.
+
+# Ejemplo:
+
+query = "SELECT * FROM pacientes LIMIT 10"
+df1 = pd.read_sql(query, db_engine1)
+print(df1)
+
+---
+
+### 4. ¿Por qué es diferente al CSV?
+
+| Característica | Archivo CSV | Base de Datos (SQL) |
+| --- | --- | --- |
+| **Acceso** | Estático, local | Dinámico, concurrente |
+| **Integridad** | Baja (fácil de modificar accidentalmente) | Alta (reglas y tipos de datos estrictos) |
+| **Volumen** | Limitado por memoria | Casi ilimitado |
+| **IA** | Útil para prototipos | Esencial para producción |
+
+### Resumen del flujo para IA
+
+1. **Conexión:** `SQLAlchemy` conecta el servidor con tu entorno.
+2. **Consulta:** SQL selecciona las variables (`X`) y la etiqueta (`y`) necesarias.
+3. **Conversión:** `pd.read_sql` transforma el resultado en un *DataFrame*.
+4. **EDA/Modelado:** Aplicas el Análisis Exploratorio y el entrenamiento que ya conocemos.
+
+**Consejo:** Antes de lanzar una consulta pesada en una base de datos de producción, siempre pruébala con un `LIMIT 10` al final. Así confirmarás que la sintaxis es correcta y que los nombres de las columnas son los que esperabas, sin arriesgarte a bloquear el servidor con una consulta masiva innecesaria.
+
+//////////////////////////////////////////////////////////////////
+
+**Diferencia clave:**
+* **MySQL:** Suele ser muy común en entornos web y aplicaciones simples.
+* **PostgreSQL:** Es preferido para Ciencia de Datos e Inteligencia Artificial debido a su capacidad para manejar consultas complejas y extensiones avanzadas (como `PostGIS` para datos geográficos).
+

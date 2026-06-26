@@ -1,0 +1,7 @@
+.venv/
+.tmp.driveupload/
+.tmp.drivedownload/
+*.zip
+*.pkl
+datos_nuevo_lote.csv
+Rice_MSC_Dataset.csv

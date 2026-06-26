@@ -1,0 +1,14 @@
+Nivel IV: Deep Learning e IA Generativa
+
+• Redes Neuronales Artificiales: Introducción a TensorFlow y Keras.
+• Visión Artificial: Procesamiento de imágenes básicas (detección de objetos).
+• Procesamiento de Lenguaje Natural (NLP): Análisis de sentimiento y limpieza de texto.
+• IA Generativa: * Uso de APIs de OpenAI (GPT-4) y Hugging Face con Python.
+o Creación de Chatbots inteligentes con LangChain.
+• Despliegue de Modelos: Cómo subir un modelo de IA a producción (Model-as-a-Service).
+• Proyecto Final: Creación de un asistente inteligente que analice documentos y genere
+respuestas automáticas (RAG - Retrieval Augmented Generation).
+
+
+Modelo local de Inteligencia Artificial, entrenado para los procesos operativos de 
+la empresa.

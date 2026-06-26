@@ -1,0 +1,191 @@
+**********************************
+Objetivo: Producción de alimentos. 
+Área de importancia:
+- Laboratorio : Análisis de materia prima. Identificar calidad.
+Identificación, por lotes.
+Por ejemplo: Arróz normal, esmeralda, parbolizado, otros
+**********************************
+
+Para consolidar durante el desarrollo de este nivel (limpieza de datos, manejo de nulos, codificación, validación cruzada y priorización de métricas), el proyecto ideal es aquel que te permita simular el **Control de Calidad en un Laboratorio Industrial**.
+
+Aquí la propuesta de Kaggle:
+
+### 1. Rice Classification (Dataset de Características)
+
+Este es el "estándar de oro" para tu objetivo. Contiene mediciones morfológicas (área, perímetro, longitud de ejes, excentricidad, etc.) de diferentes tipos de arroz.
+
+* **Por qué te sirve:** Es perfecto para practicar la **limpieza de datos** (buscar valores extremos o *outliers* que indicarían granos defectuosos) y la **codificación**.
+* **Reto Clínico/Industrial:** Aquí el "Falso Negativo" sería aceptar un lote de arroz de baja calidad (o tipo equivocado) como si fuera "Premium". Tu modelo debe ser extremadamente preciso en la identificación.
+* **Enlace:** 
+https://www.kaggle.com/datasets/muratkokludataset/rice-msc-dataset
+
+
+Esta estructura al tener tantas columnas (morfología, color, textura, estadísticas de onda *daub4*), el mayor riesgo es que tu modelo sufra de "maldición de la dimensionalidad" o que haya variables que no aportan valor real.
+
+Vamos a realizar la carga y la limpieza inicial con un enfoque en **optimización de memoria** y **preparación para el diagnóstico de lotes**.
+
+###
+
+```python
+import pandas as pd
+import numpy as np
+
+# 1. Carga 
+df = pd.read_csv('./NIVEL_3/PROFESOR/CLASE5/Rice_MSC_Dataset.csv')
+
+valores_unicos = df['CLASS'].unique()
+
+# 'Basmati', 'Arborio', 'Jasmine', 'Ipsala', 'Karacadag'
+
+'''
+
+Nota respecto a calidad basado en la clasificación:
+
+En el mercado global y en la industria del arroz, el concepto de "Premium" es subjetivo y depende de la región, pero basándonos en las variedades que tienes en tu dataset, podemos categorizarlas por su posicionamiento comercial y valor gastronómico.
+
+Aquí tienes la clasificación según su estatus:
+
+1. El estándar "Premium" (Categoría Superior)
+Basmati: Es, sin duda, la variedad más reconocida como Premium. Es originaria de la India y Pakistán. Se valora por su aroma distintivo (compuesto químico 2-acetil-1-pirrolina), su grano largo y fino, y porque, al cocinarse, se mantiene suelto y ligero. Es el arroz de mayor valor en el mercado internacional.
+
+Jasmine: También considerado Premium (especialmente el tailandés "Hom Mali"). Es un arroz aromático de grano largo. Es muy apreciado por su textura ligeramente pegajosa y su aroma floral. Es un estándar de calidad en la gastronomía asiática y gourmet.
+
+2. Variedad de Especialidad (Premium de Textura)
+Arborio: Es el arroz Premium para Risotto. No destaca por aroma, sino por su contenido de almidón (amilopectina). Es un grano corto y redondo que, al cocinarse, libera almidón, creando esa textura cremosa característica de la cocina italiana. Su valor "Premium" reside en su función culinaria específica.
+
+3. Arroces de Consumo General / Industriales
+Ipsala: Es una variedad de grano medio/largo muy popular en Turquía. Es un arroz de muy buena calidad para el consumo diario (arroz de mesa), pero generalmente no se clasifica bajo el sello "Premium" de exportación como el Basmati.
+
+Karacadag: Es una variedad tradicional, a menudo cultivada en zonas específicas de Turquía. Es muy apreciado localmente por su sabor y tradición, pero es una variedad más regional que comercialmente "Premium" a escala global.
+
+Aplicación en tu proyecto.
+Si estás analizando un lote de materia prima en el laboratorio para determinar su valor comercial, aquí tienes cómo deberías manejar estas etiquetas:
+
+Precio por Lote: Si tu modelo identifica que el lote es 95% Basmati o Jasmine, puedes etiquetar ese lote automáticamente con un valor de mercado alto.
+
+Control de Pureza: En el laboratorio, si un lote que debería ser 100% Basmati (Premium) contiene granos de Karacadag, tu sistema de IA debe generar una alerta de "Calidad Degradada". Mezclar variedades con diferentes tiempos de cocción arruina el producto final.
+
+
+###
+
+### Código de Carga y Limpieza Inicial
+
+```python
+# Dependencias
+import pandas as pd
+import numpy as np
+
+# 1. Carga
+df = pd.read_csv('./NIVEL_3/PROFESOR/CLASE5/Rice_MSC_Dataset.csv')
+
+# 2. Limpieza de datos (Laboratorio)
+# Verificar nulos es obligatorio. Si hay nulos en análisis de calidad, 
+# el lote no puede ser clasificado.
+def limpiar_lote(df):
+    # Imputar nulos por la media del atributo (o eliminar filas si es crítico)
+    for col in df.columns:
+        if df[col].isnull().sum() > 0:
+            df[col] = df[col].fillna(df[col].mean())
+    
+    # Eliminar posibles duplicados que ensucien el análisis de lotes
+    df = df.drop_duplicates()
+    return df
+
+df = limpiar_lote(df)
+# Al terminar de crear/transformar columnas, re-creamos el df para compactar la memoria
+df = df.copy()
+
+# 3. Definición del Target
+# Necesitamos convertir 'CLASS' a binario (Sano vs Defectuoso)
+# Supongamos que tu columna CLASS tiene varios tipos de arroz.
+# Definiremos 'Arroz_Premium' (1) y 'Otros/Defectuosos' (0)
+
+# Ejemplo: si el arroz 'Normal' es el aceptado, el resto se marca como 0
+# Ajusta 'Arroz_Normal' al valor real que aparezca en tu columna CLASS
+
+valores_unicos = df['CLASS'].unique()
+print("Valores únicos en la columna 'CLASS':", valores_unicos)
+# Valores únicos en la columna 'CLASS':
+# 'Basmati', 'Arborio', 'Jasmine', 'Ipsala', 'Karacadag'
+
+# df['Calidad_Aceptable'] = np.where(df['CLASS'] == 'Arroz_Normal', 1, 0)
+df['Calidad_Aceptable'] = np.where(df['CLASS'] == 'Basmati', 1, 0)
+
+# 4. Eliminación de variables no predictivas
+# CLASS ya no lo necesitamos al haber creado nuestra nueva variable binaria
+df = df.drop(columns=['CLASS'])
+
+print(f"Dataset listo: {df.shape[0]} granos analizados, {df.shape[1]} características.")
+
+```
+
+
+###
+Modificación para entrenamiento del modelo.
+
+# Dependencias necesarias
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split, StratifiedKFold, cross_val_predict
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import confusion_matrix, classification_report
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# 1. Carga y Limpieza (Mantenemos tu lógica original)
+df = pd.read_csv('Rice_MSC_Dataset.csv')
+
+def limpiar_lote(df):
+    for col in df.columns:
+        if df[col].isnull().sum() > 0:
+            df[col] = df[col].fillna(df[col].mean())
+    return df.drop_duplicates()
+
+df = limpiar_lote(df)
+# Al terminar de crear/transformar columnas, re-creamos el df para compactar la memoria
+df = df.copy()
+
+# 2. Ingeniería de Variable Objetivo (Target Binario)
+# Definimos Basmati como 1 (Premium/Aceptable) y el resto como 0
+df['Calidad_Aceptable'] = np.where(df['CLASS'] == 'Basmati', 1, 0)
+X = df.drop(columns=['CLASS', 'Calidad_Aceptable'])
+y = df['Calidad_Aceptable']
+
+# 3. Entrenamiento y Validación
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, stratify=y, random_state=42)
+
+modelo = RandomForestClassifier(n_estimators=100, random_state=42)
+modelo.fit(X_train, y_train)
+
+# 4. Validación Cruzada Estratificada (Evaluación Robusta)
+# Esto asegura que cada lote sea evaluado equitativamente
+skf = StratifiedKFold(n_splits=5)
+y_pred_cv = cross_val_predict(modelo, X, y, cv=skf)
+
+# 5. Métricas de Evaluación
+print("--- Reporte de Clasificación (Validación Cruzada) ---")
+print(classification_report(y, y_pred_cv))
+
+# Visualización de la Matriz de Confusión
+cm = confusion_matrix(y, y_pred_cv)
+plt.figure(figsize=(6, 5))
+sns.heatmap(cm, annot=True, fmt='d', cmap='Greens', 
+            xticklabels=['Otros', 'Basmati'], 
+            yticklabels=['Otros', 'Basmati'])
+plt.xlabel('Predicho')
+plt.ylabel('Real')
+plt.title('Matriz de Confusión: Clasificación Premium (Basmati)')
+plt.show()
+
+###
+
+Por qué esta estructura es superior:
+
+StratifiedKFold: En el control de calidad, a veces los lotes de "Arroz Basmati" (Premium) son minoría respecto al resto. Esta validación asegura que el modelo vea una proporción representativa de granos Premium en cada iteración de prueba, evitando sesgos.
+
+Métrica de Recall: Al observar el classification_report, presta especial atención al Recall de la clase 1 (Basmati). En tu laboratorio, esto representa qué porcentaje de granos Premium fuiste capaz de identificar correctamente sin dejar que se mezclen o pierdan en el grupo "Otros".
+
+Visualización: La matriz de confusión te mostrará exactamente cuántos granos Basmati fueron confundidos con otras variedades (Falsos Negativos), lo cual es el indicador clave de la pérdida de calidad en tu línea de producción.
+
+###
+

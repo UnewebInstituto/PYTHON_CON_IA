@@ -1,0 +1,439 @@
+Continuación de la Clase 1.
+
+Para abordar el aprendizaje supervisado con tu dataset, utilizaremos las columnas `Sales`, `Quantity`, `Discount`, `Category` y `Payment Mode` como variables predictoras (X) para realizar diferentes tareas de predicción.
+
+Aquí tienes los ejemplos prácticos estructurados según los temas solicitados:
+
+### 1. Regresión Lineal (Predicción Numérica)
+
+**Objetivo:** Predecir el valor de `Profit` (ganancia) en Ecommerce_Sales_Data_2024_2025.csv
+
+# Importación de dependencias
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+from sklearn.preprocessing import MinMaxScaler
+
+# 1. Cargar datos
+df = pd.read_csv("C:/Users/duque/Documents/Henry Duque/UNEWEB/PYTHON_CON_IA/NIVEL_2/PROFESOR/CLASE5/Ecommerce_Sales_Data_2024_2025.csv")
+
+# 2. Calcular el Margen de Utilidad (Profit / Sales * 100)
+# Esto convierte el valor absoluto a un porcentaje crudo
+df['Profit_Margin'] = (df['Profit'] / df['Sales']) * 100
+df['Profit_Margin'] = df['Profit_Margin'].fillna(0) # Manejo de posibles errores de división
+
+# 3. Normalizar el margen a un rango estrictamente entre 0 y 100
+# Esto asegura que cualquier valor extremo sea ajustado a tu escala objetivo
+scaler = MinMaxScaler(feature_range=(0, 100))
+df['Profit_Scaled'] = scaler.fit_transform(df[['Profit_Margin']])
+
+# 4. Definir features (X) y el nuevo objetivo escalado (y)
+X = df[['Sales', 'Quantity', 'Discount']]
+y = df['Profit_Scaled'] # Ahora y está entre 0 y 100
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# 5. Entrenar la regresión
+reg = LinearRegression()
+reg.fit(X_train, y_train)
+
+# Resultado
+predicciones = reg.predict(X_test)
+mse = mean_squared_error(y_test, predicciones)
+print(f"Error cuadrático medio en escala 0-100: {mse}")
+print(f"Ejemplo de predicción (valor entre 0 y 100): {predicciones[0]:.2f}%")
+---
+
+### 2. Regresión Logística (Clasificación)
+
+**Objetivo:** Clasificar si una orden tendrá un `Discount` mayor al 10% (1) o menor/igual (0), útil para predecir estrategias de precios.
+
+import pandas as pd
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import classification_report
+
+# 1. Cargar datos
+df = pd.read_csv("C:/Users/duque/Documents/Henry Duque/UNEWEB/PYTHON_CON_IA/NIVEL_2/PROFESOR/CLASE5/Ecommerce_Sales_Data_2024_2025.csv")
+
+# 2. Calcular Margen y Escalar a 0-100
+df['Profit_Margin'] = (df['Profit'] / df['Sales']) * 100
+df['Profit_Margin'] = df['Profit_Margin'].fillna(0)
+
+scaler = MinMaxScaler(feature_range=(0, 100))
+df['Profit_Scaled'] = scaler.fit_transform(df[['Profit_Margin']])
+
+# 3. Crear variable objetivo binaria: 
+# 1 si el margen escalado es > 80 (Alto Rendimiento), 0 si no
+df['High_Performance'] = (df['Profit_Scaled'] > 80).astype(int)
+
+# 4. Seleccionar variables predictoras (Features)
+X = df[['Sales', 'Quantity', 'Discount']]
+y = df['High_Performance']
+
+# 5. Dividir datos
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# 6. Entrenar Regresión Logística
+# Nota: usamos class_weight='balanced' por si hay pocas ventas "Altamente Rentables"
+clf_log = LogisticRegression(class_weight='balanced')
+clf_log.fit(X_train, y_train)
+
+# 7. Evaluar
+y_pred = clf_log.predict(X_test)
+print("Reporte de clasificación para 'High_Performance':")
+print(classification_report(y_test, y_pred))
+---
+
+### 3. Árboles de Decisión y Random Forest (Modelos Complejos)
+
+**Objetivo:** Clasificar la `Category` del producto basándose en el comportamiento de compra (`Sales`, `Quantity`, `Profit`).
+
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import MinMaxScaler
+
+# 1. Cargar y procesar métrica de rendimiento (0-100)
+
+
+df = pd.read_csv("C:/Users/duque/Documents/Henry Duque/UNEWEB/PYTHON_CON_IA/NIVEL_2/PROFESOR/CLASE5/Ecommerce_Sales_Data_2024_2025.csv")
+
+df['Profit_Margin'] = (df['Profit'] / df['Sales']) * 100
+df['Profit_Margin'] = df['Profit_Margin'].fillna(0)
+
+scaler = MinMaxScaler(feature_range=(0, 100))
+df['Profit_Scaled'] = scaler.fit_transform(df[['Profit_Margin']])
+
+# 2. Definir target binario (1 si es Alta Rentabilidad, 0 si no)
+df['High_Performance'] = (df['Profit_Scaled'] > 80).astype(int)
+
+# 3. Preparar X e y
+# Incluimos Sales, Quantity, Discount y el valor escalado
+X = df[['Sales', 'Quantity', 'Discount', 'Profit_Scaled']]
+y = df['High_Performance']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# 4. Árbol de Decisión (Fácil de interpretar para reglas de negocio)
+tree = DecisionTreeClassifier(max_depth=4, class_weight='balanced')
+tree.fit(X_train, y_train)
+
+# 5. Random Forest (Mayor capacidad predictiva)
+forest = RandomForestClassifier(n_estimators=100, class_weight='balanced', random_state=42)
+forest.fit(X_train, y_train)
+
+print(f"Precisión del Árbol de Decisión: {tree.score(X_test, y_test):.2f}")
+print(f"Precisión del Random Forest: {forest.score(X_test, y_test):.2f}")
+
+```
+
+### Resumen Teórico para tu Proyecto
+
+* 
+**Regresión Lineal:** Úsala siempre que la variable que quieres predecir sea un número continuo (dinero, cantidad, tiempo).
+
+
+* 
+**Regresión Logística:** Úsala cuando necesites una respuesta de "sí o no" o una clasificación entre dos categorías.
+
+
+* **Árboles de Decisión:** Son excelentes para visualizar reglas de negocio. Si el árbol crece demasiado, tiende a memorizar los datos; por eso limitamos la profundidad (`max_depth`).
+
+
+* **Bosques Aleatorios (Random Forest):** Es la evolución natural de los árboles. Al entrenar cientos de árboles y promediar sus resultados, es mucho más difícil que el modelo se equivoque por una excepción en los datos.
+
+//// Importante Persistencia del entrenamiento ////
+
+Para entender cómo "queda" el conocimiento después del entrenamiento y cómo interactúa con nuevos datos, debemos distinguir entre **qué aprende el modelo durante el entrenamiento** y **qué sucede durante la evaluación**.
+
+Aquí te explico el proceso de forma técnica y práctica:
+
+### 1. El entrenamiento: ¿Dónde queda el conocimiento?
+
+Durante el proceso de entrenamiento (`.fit()`), el modelo no "memoriza" las filas de tu archivo CSV como lo haría una base de datos. En lugar de eso, **ajusta sus parámetros internos** para minimizar el error.
+
+* **En modelos de Regresión (Lineal/Logística):** El conocimiento se traduce en **pesos (weights) o coeficientes**. Si tu modelo aprende que `Sales` tiene un peso alto para predecir `Profit`, ese número (por ejemplo, `0.85`) se almacena como una constante matemática dentro del modelo.
+* **En Árboles de Decisión / Random Forest:** El conocimiento queda estructurado como **reglas de decisión jerárquicas**. Se guardan las condiciones (ej. "Si `Discount` > 0.15 y `Category` == 'Electrónica', entonces `is_profitable` = 0"). Un Random Forest almacena cientos de estas estructuras (árboles).
+
+**Resultado:** Una vez entrenado, el modelo es simplemente un archivo con una serie de números (pesos o reglas) que definen una función matemática compleja.
+
+---
+
+### 2. La evaluación: ¿Cómo se somete a nuevos datos?
+
+Cuando aplicas el modelo a un conjunto de datos que nunca ha visto (`X_test` o datos nuevos del e-commerce), el proceso es puramente **deductivo**:
+
+1. **Input:** Recibes los nuevos datos (ej. una nueva venta).
+2. **Transformación:** Es vital aplicar **exactamente el mismo preprocesamiento** (mismas codificaciones, mismos escalados) que usaste en el entrenamiento. Si en el entrenamiento transformaste 'Categoría' a números, debes hacerlo igual con los datos nuevos.
+3. **Cálculo:** El modelo toma estos datos y los pasa por su función matemática (usando los pesos o reglas ya guardados). No vuelve a "aprender" nada; simplemente **aplica lo aprendido**.
+4. **Predicción:** El modelo devuelve el resultado (`y_pred`).
+
+---
+
+### 3. ¿Qué pasa si los datos nuevos son diferentes? (El fenómeno de la deriva)
+
+Si después de meses la dinámica de ventas cambia drásticamente (por ejemplo, los precios suben y los descuentos ya no funcionan igual), el conocimiento almacenado en los "pesos" del modelo puede quedar obsoleto. Esto se llama **Data Drift** (deriva de datos).
+
+* **En evaluación:** Si evalúas el modelo con datos muy distintos a los del entrenamiento, verás que tu **Matriz de Confusión** comienza a mostrar muchos errores (falsos negativos/positivos).
+* **Solución:** Cuando la precisión cae por debajo de un umbral aceptable, el conocimiento se considera "vencido" y debes volver a entrenar el modelo con datos frescos para que los "pesos" o "reglas" se ajusten a la nueva realidad.
+
+### Resumen para tu proyecto:
+
+Cuando entrenas tu modelo con el CSV de ventas:
+
+1. **Conocimiento:** Se guarda en el objeto `rf_model` (Random Forest).
+2. **Evaluación:** Comparas la salida de ese objeto con la realidad (`y_test`) para saber si las "reglas" que aprendió el modelo son confiables.
+3. **Persistencia:** Puedes guardar ese modelo en un archivo (usando librerías como `pickle` o `joblib`) para usarlo meses después sin tener que reentrenarlo.
+
+Guardar un modelo es una práctica profesional esencial, conocida como **persistencia de modelos**. Esto te permite entrenar tu modelo una vez (quizás en un servidor potente o con un dataset muy grande) y luego usarlo instantáneamente en una aplicación, como tu dashboard de Streamlit, sin consumir recursos de CPU o memoria en cada ejecución.
+
+La librería estándar para esto en Python es **`joblib`**, que es extremadamente eficiente para objetos de `Scikit-Learn` que contienen gran cantidad de datos numéricos.
+
+### 1. Cómo guardar tu modelo entrenado
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import MinMaxScaler
+
+# 1. Cargar y procesar métrica de rendimiento (0-100)
+
+df = pd.read_csv("C:/Users/duque/Documents/Henry Duque/UNEWEB/PYTHON_CON_IA/NIVEL_2/PROFESOR/CLASE5/Ecommerce_Sales_Data_2024_2025.csv")
+
+df['Profit_Margin'] = (df['Profit'] / df['Sales']) * 100
+df['Profit_Margin'] = df['Profit_Margin'].fillna(0)
+
+scaler = MinMaxScaler(feature_range=(0, 100))
+df['Profit_Scaled'] = scaler.fit_transform(df[['Profit_Margin']])
+
+# 2. Definir target binario (1 si es Alta Rentabilidad, 0 si no)
+df['High_Performance'] = (df['Profit_Scaled'] > 80).astype(int)
+
+# 3. Preparar X e y
+# Incluimos Sales, Quantity, Discount y el valor escalado
+X = df[['Sales', 'Quantity', 'Discount', 'Profit_Scaled']]
+y = df['High_Performance']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# 4. Árbol de Decisión (Fácil de interpretar para reglas de negocio)
+tree = DecisionTreeClassifier(max_depth=4, class_weight='balanced')
+tree.fit(X_train, y_train)
+
+# 5. Random Forest (Mayor capacidad predictiva)
+rf_model = RandomForestClassifier(n_estimators=100, class_weight='balanced', random_state=42)
+rf_model.fit(X_train, y_train)
+
+print(f"Precisión del Árbol de Decisión: {tree.score(X_test, y_test):.2f}")
+print(f"Precisión del Random Forest: {rf_model.score(X_test, y_test):.2f}")
+
+Una vez que has ejecutado `rf_model.fit(X_train, y_train)`, solo necesitas ejecutar estas dos líneas:
+
+```python
+import joblib
+
+# Guardar el modelo en un archivo con extensión .pkl (pickle)
+joblib.dump(rf_model, 'modelo_rentabilidad.pkl')
+
+print("Modelo guardado correctamente como 'modelo_rentabilidad.pkl'")
+
+```
+
+### 2. Cómo cargar el modelo y hacer predicciones
+
+En tu aplicación (o en un nuevo script), simplemente cargas el archivo y puedes realizar predicciones inmediatamente:
+
+```python
+import joblib
+import pandas as pd
+
+# 1. Cargar el modelo guardado
+modelo_cargado = joblib.load('modelo_rentabilidad.pkl')
+
+# 2. Supongamos que recibes nuevos datos de una venta (deben tener las mismas columnas que X_train)
+# Ejemplo: Nueva venta con [Sales, Quantity, Discount, Profit_Scaled]
+nueva_venta = pd.DataFrame([[500, 2, 0.1, 80]], columns=['Sales', 'Quantity', 'Discount', 'Profit_Scaled'])
+
+# 3. Predecir
+prediccion = modelo_cargado.predict(nueva_venta)
+
+if prediccion[0] == 1:
+    print("El modelo predice que esta orden será RENTABLE.")
+else:
+    print("El modelo predice que esta orden será NO RENTABLE.")
+
+```
+
+### Consideraciones técnicas clave:
+
+* **Consistencia en el Preprocesamiento:** Este es el punto donde la mayoría de los desarrolladores cometen errores. **El modelo solo entiende los datos exactamente como los vio en el entrenamiento**. Si en el entrenamiento transformaste 'Categoría' usando `pd.get_dummies`, cuando lleguen datos nuevos para predecir, **tienes que aplicar la misma transformación** antes de pasar los datos al modelo cargado.
+* **Versiones:** Asegúrate de que tanto el entorno donde guardaste el modelo como el entorno donde lo cargas tengan la **misma versión de `scikit-learn**`, de lo contrario, podrías tener problemas de compatibilidad.
+* **¿Por qué `joblib` y no `pickle`?** Aunque `joblib` está basado en `pickle`, está optimizado específicamente para estructuras de datos grandes de NumPy (como las que usan los modelos de Random Forest), haciéndolo mucho más rápido y compacto al guardar y cargar archivos.
+
+Con este flujo, tu dashboard no tendrá que reentrenar el modelo cada vez que el usuario interactúe con él. Simplemente cargarás el archivo `.pkl` al inicio de tu script de Streamlit y el modelo estará "listo para hablar" con los datos nuevos.
+
+///*
+
+La extensión **`.pkl`** significa **Pickle** (que en inglés significa "encurtido" o "conserva").
+
+En el contexto de Python y Machine Learning, es la extensión de archivo estándar para la **serialización de objetos**.
+
+### ¿Qué significa "serialización"?
+
+Serializar un objeto es el proceso de convertir una estructura de datos compleja que vive en la memoria RAM de tu computadora (como tu modelo de *Random Forest* entrenado) en un formato de **bytes** que puede ser guardado en un archivo en tu disco duro.
+
+Imagina que tu modelo entrenado es un rompecabezas armado en tu mesa (la memoria RAM). "Serializarlo" es desarmarlo pieza por pieza, ponerlo en una caja (el archivo `.pkl`) y cerrarla para guardarla en un estante. Luego, cuando quieras volver a usar el modelo, simplemente "deserializas" (o *unpickling*) el archivo, lo que reconstruye el modelo exactamente como estaba en la memoria.
+
+### Características técnicas del archivo `.pkl`:
+
+* **Formato binario:** No puedes abrir un archivo `.pkl` con el Bloc de notas para leerlo, ya que contiene datos binarios destinados a ser interpretados por el intérprete de Python.
+* **Preserva el estado:** A diferencia de guardar el código en un archivo `.py`, el `.pkl` guarda el **conocimiento** (los pesos, los umbrales de decisión, los parámetros) que el modelo aprendió después de haber procesado los datos.
+* **Exclusividad:** Los archivos `.pkl` están diseñados principalmente para ser leídos por Python.
+
+### ¿Por qué es importante en tu proyecto?
+
+Cuando trabajas con un modelo de Machine Learning, el proceso de entrenamiento puede ser muy costoso y tardar mucho tiempo. Al guardar tu modelo como `.pkl` mediante `joblib` o `pickle`, estás haciendo una "copia de seguridad" de ese aprendizaje.
+
+**Una advertencia de seguridad importante:**
+Nunca debes cargar un archivo `.pkl` que te haya enviado un desconocido. Dado que el archivo puede ejecutar código arbitrario al ser deserializado, un atacante podría incluir código malicioso dentro del archivo `.pkl` que se ejecutaría en tu computadora al intentar cargarlo con `joblib.load()` o `pickle.load()`. **Úsalo solo con modelos que tú mismo hayas entrenado y guardado.**
+
+//// *
+
+Para integrar la inteligencia artificial en tu dashboard, vamos a dividir el trabajo en dos partes: un script de entrenamiento (que solo ejecutas una vez para generar el archivo `.pkl`) y la actualización de tu `app.py`.
+
+### 1. Script de entrenamiento (`entrenar_modelo.py`)
+
+Ejecuta este código una sola vez en tu computadora para "enseñarle" al modelo y guardar su conocimiento.
+
+```python
+import pandas as pd
+import joblib
+from sklearn.ensemble import RandomForestClassifier
+
+# Cargar y preprocesar
+
+df = pd.read_csv("C:/Users/duque/Documents/Henry Duque/UNEWEB/PYTHON_CON_IA/NIVEL_2/PROFESOR/CLASE5/Ecommerce_Sales_Data_2024_2025.csv")
+
+df['is_profitable'] = (df['Profit'] > 0).astype(int)
+df_encoded = pd.get_dummies(df, columns=['Category', 'Payment Mode', 'Region'], drop_first=True)
+
+# Seleccionar features (deben coincidir con el orden que usaremos en la app)
+features = [col for col in df_encoded.columns if col not in ['Order ID', 'Order Date', 'Customer Name', 'City', 'Product Name', 'Sub-Category', 'Profit', 'is_profitable']]
+X = df_encoded[features]
+y = df_encoded['is_profitable']
+
+# Entrenar
+rf_model = RandomForestClassifier(n_estimators=100, random_state=42)
+rf_model.fit(X, y)
+
+# Guardar el modelo y la lista de columnas para asegurar consistencia
+joblib.dump(rf_model, 'modelo_rentabilidad.pkl')
+joblib.dump(features, 'columnas_modelo.pkl')
+print("Modelo guardado exitosamente.")
+
+```
+
+---
+
+### 2. Actualización de `app.py`
+
+Ahora, modifica tu `app.py` para cargar este modelo. Esto hará que la predicción sea instantánea cada vez que el usuario filtre datos.
+
+```python
+import streamlit as st
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+import joblib
+
+# 1. Cargar el modelo y columnas de entrenamiento (se ejecuta una vez)
+@st.cache_resource
+def cargar_modelo():
+    modelo = joblib.load('modelo_rentabilidad_1.pkl')
+    columnas = joblib.load('columnas_modelo_1.pkl')
+    return modelo, columnas
+
+# 2. Cargar datos (cache para mejorar rendimiento)
+@st.cache_data
+def cargar_datos():
+    df = pd.read_csv("C:/Users/duque/Documents/Henry Duque/UNEWEB/PYTHON_CON_IA/NIVEL_2/PROFESOR/CLASE5/Ecommerce_Sales_Data_2024_2025.csv")
+    df['Order Date'] = pd.to_datetime(df['Order Date'])
+    return df
+
+modelo, columnas_esperadas = cargar_modelo()
+df = cargar_datos()
+
+st.title("Dashboard Ejecutivo de Ventas con Predicción")
+
+# --- 1. Filtros laterales ---
+region = st.sidebar.selectbox("Selecciona Región:", df['Region'].unique())
+modo_pago = st.sidebar.selectbox("Modo de Pago:", df['Payment Mode'].unique())
+
+# Filtrado dinámico
+df_f = df[(df['Region'] == region) & (df['Payment Mode'] == modo_pago)]
+
+# --- 2. Métricas clave (KPIs) ---
+col1, col2 = st.columns(2)
+col1.metric("Ventas Totales", f"${df_f['Sales'].sum():,.2f}")
+col2.metric("Ganancia Total", f"${df_f['Profit'].sum():,.2f}")
+
+# --- 3. Lógica para predecir sobre los datos filtrados ---
+if st.button("Analizar Rentabilidad del Filtro Actual"):
+    if not df_f.empty:
+        # A. Preparar los datos del filtro de forma idéntica al entrenamiento
+        # Si el modelo se entrenó con get_dummies, aplicamos lo mismo aquí:
+        df_proc = pd.get_dummies(df_f, columns=['Category', 'Payment Mode', 'Region'])
+        
+        # B. Asegurar que tenga las mismas columnas que el modelo vio en el entrenamiento
+        df_proc = df_proc.reindex(columns=columnas_esperadas, fill_value=0)
+        
+        # C. Realizar predicción
+        prediccion = modelo.predict(df_proc)
+        
+        # D. Evaluación de resultado (promedio del segmento)
+        if prediccion.mean() > 0.5:
+            st.success(f"El modelo predice que este segmento es RENTABLE (Confianza promedio: {prediccion.mean():.2f})")
+        else:
+            st.error(f"El modelo predice que este segmento NO es rentable (Confianza promedio: {prediccion.mean():.2f})")
+    else:
+        st.warning("No hay datos suficientes para realizar la predicción con los filtros actuales.")
+
+# --- 4. Visualizaciones ---
+st.subheader("Tendencia de Ventas")
+st.line_chart(df_f.groupby('Order Date')['Sales'].sum())
+
+st.subheader("Relación Ventas vs. Ganancia")
+fig, ax = plt.subplots(figsize=(10, 6))
+sns.scatterplot(
+    data=df_f, x='Sales', y='Profit', hue='Category', 
+    size='Quantity', sizes=(20, 200), alpha=0.7, ax=ax
+)
+st.pyplot(fig)
+```
+
+### ¿Por qué este enfoque es eficiente?
+
+1. **Uso de `@st.cache_resource**`: Esta función especial de Streamlit le dice a la aplicación: *"Carga el modelo del disco duro solo la primera vez y manténlo en la memoria RAM"*. Así, cada vez que el usuario cambie un filtro, la predicción es casi instantánea porque el modelo no se recarga desde el disco ni se reentrena.
+2. **Archivo `columnas_modelo.pkl**`: Es una excelente práctica guardar la lista de columnas usadas en el entrenamiento junto con el modelo. Esto evita errores si en el futuro cambias el nombre de una columna o añades nuevos datos al CSV.
+3. **Independencia**: Ahora tu dashboard es un "motor de inferencia". Ya no necesitas las librerías de entrenamiento (`scikit-learn` completo en el dashboard) para que el modelo funcione, solo necesitas la librería para cargar el modelo.
+
+
+EJECUCIÓN:
+
+ACCEDER A TRAVÉS DEL ENTORNO VIRTUAL AL DIRECTORIO
+DONDE SE ENCUENTRA app1.py Y EJECUTAR LA SIGUIENTE
+INSTRUCCIÓN:
+
+(.venv) C:\...>streamlit run app1.py   <-------- 
+2026-06-19 10:28:10.733 Uvicorn server started on 0.0.0.0:8501
+
+  You can now view your Streamlit app in your browser.
+
+  Local URL: http://localhost:8501
+  Network URL: http://192.168.1.101:8501

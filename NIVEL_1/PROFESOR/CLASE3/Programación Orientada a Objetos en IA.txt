@@ -1,0 +1,69 @@
+La **Programación Orientada a Objetos (POO)** es un paradigma que organiza el código basándose en "objetos", los cuales encapsulan datos (atributos) y comportamientos (métodos). En el contexto de la Inteligencia Artificial, la POO es fundamental para modelar entidades complejas, como agentes inteligentes, modelos de aprendizaje o estructuras de datos específicas, permitiendo que el software sea modular, reutilizable y escalable.
+
+---
+
+### Conceptos Fundamentales
+* 
+**Clase:** Es el plano o molde que define qué datos tendrá un objeto y qué acciones podrá realizar.
+* 
+**Objeto:** Es una instancia concreta de una clase, con sus propios valores almacenados en sus atributos.
+* 
+**Atributos:** Son las variables que almacenan el estado del objeto (ej. el nombre de un modelo o sus hiperparámetros).
+* 
+**Métodos:** Son las funciones definidas dentro de la clase que describen el comportamiento del objeto (ej. entrenar, predecir, evaluar).
+
+---
+
+### Ejemplo: Modelado de un Agente de IA para el procesamiento de datos
+
+Para ilustrar esto, podemos crear una clase que represente un componente de procesamiento estadístico, encapsulando tanto la configuración como la lógica de cálculo.
+
+```python
+class ProcesadorDatos:
+    def __init__(self, nombre, umbral):
+        # Atributos: estado del objeto
+        self.nombre = nombre
+        self.umbral = umbral
+        self.historial = []
+
+    def procesar(self, datos):
+        # Método: comportamiento del objeto
+        resultados = [x for x in datos if x > self.umbral]
+        self.historial.append(resultados)
+        print(f"Procesador {self.nombre} ejecutado.")
+        return resultados
+
+    def obtener_promedio(self, resultados):
+        # Método auxiliar para cálculos específicos
+        if not resultados:
+            return 0
+        return sum(resultados) / len(resultados)
+
+# Uso de la clase: Creación de objetos (instancias)
+agente_a = ProcesadorDatos("Agente_Alpha", 25)
+datos_entrada = [10, 30, 45, 20, 50]
+
+# Ejecución de métodos
+resultados = agente_a.procesar(datos_entrada)
+promedio = agente_a.obtener_promedio(resultados)
+
+print(f"Resultados filtrados: {resultados}")
+print(f"Promedio del proceso: {promedio}")
+
+```
+
+---
+
+### ¿Por qué la POO es clave en IA?
+
+1. 
+**Encapsulamiento:** Permite ocultar la complejidad de los algoritmos internos dentro de los métodos del objeto, exponiendo solo una interfaz sencilla para el usuario.
+
+
+2. **Abstracción:** Facilita la creación de jerarquías. Por ejemplo, podrías tener una clase base `ModeloIA` y clases derivadas como `RedNeuronal` o `RegresionLineal` que heredan comportamientos comunes.
+
+
+3. 
+**Mantenibilidad:** Al modelar problemas como objetos, si un sensor o un módulo de IA necesita una actualización, solo se modifica su clase específica sin afectar el resto del sistema.
+
+Al utilizar clases para estructurar tus herramientas de IA, transformas scripts aislados en un ecosistema de software robusto, donde cada objeto tiene una responsabilidad clara y definida.

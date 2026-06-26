@@ -1,0 +1,8 @@
+Nivel II: Análisis, Limpieza y Visualización de Datos.
+Preparación del "alimento" de la IA: los datos.
+• Pandas en profundidad: Manipulación de DataFrames, limpieza de datos faltantes y normalización.
+• Ingeniería de Características (Feature Engineering): Transformación de variables categóricas y escalado de datos.
+• Visualización Científica: Uso de Matplotlib y Seaborn para identificar patrones y correlaciones.
+• Análisis Exploratorio de Datos (EDA): Técnicas para entender los datos antes de aplicar modelos.
+• Conexión a Bases de Datos: Extracción de datos desde MySQL/PostgreSQL para análisis de IA.
+• Proyecto Nivel 2: Informe interactivo de tendencias del mercado basado en un dataset real de Kaggle.

@@ -1,0 +1,104 @@
+https://numpy.org/
+
+https://matplotlib.org/stable/users/getting_started/
+
+https://pandas.pydata.org/docs/getting_started/index.html
+
+Para avanzar en tu formación técnica, el paso lógico después de dominar la programación funcional es integrar **NumPy**. Mientras la programación funcional organiza la lógica, NumPy proporciona el motor matemático de alto rendimiento necesario para que tus algoritmos escalen masivamente en **Google Colab**.
+
+Aquí tienes el desarrollo:
+
+---
+
+### Introducción a NumPy: Arreglos Multidimensionales (Tensores)
+
+NumPy (*Numerical Python*) es la librería fundamental para la computación científica. Su núcleo son los **`ndarray`**, objetos que permiten almacenar datos en una estructura multidimensional. En IA, estos arreglos son conocidos como **tensores** (matrices de $N$ dimensiones).
+
+#### 1. Creación de tensores
+
+A diferencia de las listas de Python, los tensores de NumPy son contiguos en memoria, lo que permite un acceso ultrarrápido.
+
+```python
+import numpy as np
+
+# Vector (1D)
+vector = np.array([1, 2, 3])
+
+# Matriz (2D) - Representa una tabla de datos
+matriz = np.array([[1, 2, 3], [4, 5, 6]])
+
+# Tensor (3D) - Representa, por ejemplo, una imagen RGB (alto x ancho x canales)
+tensor = np.zeros((3, 3, 3)) 
+
+print(f"Forma de la matriz: {matriz.shape}") # Resultado: (2, 3)
+
+```
+
+#### 2. Operaciones Element-wise (Vectorización)
+
+La principal ventaja es que puedes operar sobre todo el tensor sin escribir un solo bucle `for`.
+
+```python
+datos = np.array([10, 20, 30])
+# Operación matemática aplicada a todos los elementos a la vez
+resultado = datos * 2 + 5 
+
+print(resultado) # [25, 45, 65]
+
+```
+
+---
+
+### Álgebra Lineal Básica
+
+Para algoritmos de aprendizaje automático (como redes neuronales), el álgebra lineal es el lenguaje base. NumPy simplifica estas operaciones complejas mediante el módulo `np.linalg`.
+
+#### 1. Producto Punto (Dot Product)
+
+Es la operación central en las neuronas artificiales para calcular sumas ponderadas.
+
+```python
+pesos = np.array([0.5, 0.2, 0.1])
+entradas = np.array([1.0, 2.0, 3.0])
+
+# Producto punto: (0.5*1.0) + (0.2*2.0) + (0.1*3.0)
+resultado = np.dot(pesos, entradas)
+print(f"Salida de la neurona: {resultado}")
+
+```
+
+#### 2. Transformación de Matrices (Transposición)
+
+Fundamental para alinear dimensiones cuando entrenas modelos donde las filas deben ser ejemplos y las columnas características.
+
+```python
+matriz = np.array([[1, 2], [3, 4]])
+# Transposición: filas se convierten en columnas
+matriz_t = matriz.T 
+print(matriz_t)
+# [[1, 3],
+#  [2, 4]]
+
+```
+
+---
+
+### ¿Por qué esto es vital para tu Proyecto Nivel 1?
+
+1. **Escalabilidad:** Si intentas procesar una matriz de $10,000 \times 10,000$ con listas nativas, tu notebook se bloqueará. NumPy utiliza **C** por debajo para gestionar estos bloques, manteniendo tu entorno en Colab estable.
+2. **Preparación para Deep Learning:** Frameworks como **PyTorch** o **TensorFlow** replican la sintaxis de NumPy. Si dominas la creación y manipulación de tensores en NumPy, ya conoces el 80% de lo necesario para crear arquitecturas neuronales complejas.
+3. **Memoria eficiente:** Los tensores de NumPy ocupan mucho menos espacio que las listas de objetos Python porque no almacenan metadatos por cada elemento, solo el valor numérico.
+
+
+
+idle python: ENTORNO DE DESARROLLO Y APRENDIZAJE INTEGRADO.
+
+.venv\scripts\activate
+
+(.venv) C:\...\PYTHON_CON_IA\NIVEL_1\PROFESOR>python -m idlelib
+
+INSTALACIÓN DE NumPy
+Desde el entorno virtual:
+
+(.venv) C:\...\PYTHON_CON_IA\NIVEL_1\PROFESOR>pip install numpy
+

@@ -1,0 +1,33 @@
+Google Colab (abreviatura de *Colaboratory*) es un entorno de desarrollo basado en la nube que permite escribir y ejecutar **código Python** directamente en tu navegador. Está construido sobre la infraestructura de los **Jupyter Notebooks**, lo que significa que combina código ejecutable, texto enriquecido, ecuaciones matemáticas y visualizaciones en un solo documento.
+
+Para un desarrollador o científico de datos, estas son sus características principales:
+
+### 1. Acceso a Hardware Gratuito
+
+Es una de sus ventajas más competitivas: Google te proporciona acceso gratuito a **GPUs (Unidades de Procesamiento Gráfico)** y **TPUs (Unidades de Procesamiento Tensorial)**. Esto es fundamental cuando entrenas modelos de IA, ya que acelera los cálculos matemáticos complejos que tomarían horas (o días) en una computadora personal estándar.
+
+### 2. Cero Configuración
+
+No necesitas instalar nada en tu equipo. Colab ya tiene preinstaladas las bibliotecas más importantes para el ecosistema de datos y machine learning, tales como:
+
+* **NumPy:** Para computación científica.
+* **Pandas:** Para manipulación de tablas y datos.
+* **Matplotlib/Seaborn:** Para visualización.
+* **TensorFlow/PyTorch:** Para el desarrollo de redes neuronales.
+
+### 3. Integración con el Ecosistema Google
+
+Al estar basado en la nube, todos tus cuadernos (.ipynb) se guardan automáticamente en tu **Google Drive**. Esto facilita la colaboración en tiempo real, similar a cómo editas un documento de Google Docs: puedes compartir el enlace con otros para que editen o comenten tu código.
+
+### 4. Flujo de Trabajo
+
+El flujo de trabajo es **interactivo**:
+
+* Divides tu proyecto en celdas de código y celdas de texto.
+* Ejecutas el código celda por celda, viendo los resultados (tablas, gráficos, mensajes de error) inmediatamente debajo.
+* Puedes documentar tu lógica de programación usando **Markdown** y **LaTeX** para fórmulas matemáticas, lo que hace que sea ideal para prototipar proyectos.
+
+---
+
+En resumen, Google Colab es tu "laboratorio" personal en la nube donde puedes experimentar, desarrollar y escalar tus algoritmos sin preocuparte por la potencia de tu procesador local.
+

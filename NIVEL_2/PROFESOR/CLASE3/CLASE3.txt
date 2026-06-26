@@ -1,0 +1,141 @@
+https://seaborn.pydata.org/
+https://matplotlib.org/
+
+La **Visualización Científica** no se trata solo de hacer gráficos "bonitos", sino de transformar datos crudos en información visual que permita detectar anomalías, tendencias y relaciones que son imposibles de ver en una tabla de números.
+
+En el ecosistema de Python, **Matplotlib** es la base (brinda control total) y **Seaborn** es la capa superior que facilita la creación de gráficos estadísticos complejos con muy poco código.
+
+---
+
+### 1. Identificación de Patrones (Histogramas y KDE)
+
+Para entender la **distribución** de tus datos (qué valores son comunes y cuáles son extremos), usamos histogramas.
+
+* **Ejemplo:** Visualizar la distribución de edades en un dataset.
+
+```python
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Datos de ejemplo
+edades = [22, 25, 25, 30, 35, 40, 45, 50, 50, 50, 60]
+
+# Gráfico con Seaborn
+sns.histplot(edades, kde=True, color='skyblue')
+plt.title("Distribución de Edades")
+plt.xlabel("Edad")
+plt.ylabel("Frecuencia")
+plt.show() # Simpre para mostrar el gráfico resultado.
+
+```
+
+* **¿Qué observar?** La línea curva (`kde=True`) muestra la "forma" de tus datos. Si es una campana, los datos son normales; si tiene dos picos, tienes dos grupos distintos en tu población.
+
+---
+
+### 2. Identificación de Correlaciones (Heatmaps)
+
+Para saber qué variables están relacionadas entre sí (por ejemplo, ¿a mayor edad, mayor presión arterial?), usamos una **matriz de correlación**.
+
+* **Ejemplo:**
+
+```python
+import pandas as pd
+
+# Creamos un dataset
+df = pd.DataFrame({'Edad': [20, 30, 40], 'Presion': [120, 130, 140], 'Glucosa': [80, 90, 110]})
+
+# Matriz de correlación
+correlacion = df.corr()
+
+# Heatmap (Mapa de calor)
+sns.heatmap(correlacion, annot=True, cmap='coolwarm')
+plt.title("Mapa de Calor de Correlaciones")
+plt.show()
+
+```
+
+* **¿Qué observar?** Los valores cercanos a `1` (rojo) indican una correlación positiva fuerte: cuando una variable sube, la otra también. Los cercanos a `-1` (azul) indican una relación inversa.
+
+---
+
+### 3. Identificación de Relaciones (Scatter Plots)
+
+Cuando quieres ver cómo interactúan dos variables numéricas en el espacio.
+
+* **Ejemplo:**
+
+```python
+# Relación entre Glucosa y Presión
+sns.scatterplot(data=df, x='Glucosa', y='Presion', hue='Edad', size='Edad')
+plt.title("Relación Glucosa vs Presión por Edad")
+plt.show()
+
+```
+
+* **¿Qué observar?** El parámetro `hue` nos permite añadir una tercera dimensión (la Edad) mediante colores. Si ves una línea ascendente, hay una relación directa clara.
+
+---
+
+### Resumen: ¿Por qué usar estas librerías?
+
+1. **Matplotlib:** Es el "padre" de la visualización en Python. Si necesitas personalizar cada línea, eje o marcador de un gráfico científico, Matplotlib es la herramienta.
+2. **Seaborn:** Está construida sobre Matplotlib pero optimizada para **estadística**. Detecta automáticamente los nombres de las columnas de tus `DataFrames` de Pandas, lo que ahorra tiempo y errores.
+
+### El flujo del Nivel II
+
+Al visualizar, siempre debes seguir este orden:
+
+1. **Univariado:** Analiza una variable a la vez (Histogramas, Boxplots) para ver su distribución.
+2. **Multivariado:** Analiza la relación entre variables (Heatmaps, Scatter Plots) para encontrar **correlaciones**.
+3. **Insights:** Detecta patrones inusuales (outliers) que podrían indicar errores en tus datos o hallazgos valiosos para tu modelo de IA.
+
+Un pairplot (gráfico de pares) es una de las herramientas más potentes para el Análisis Exploratorio de Datos (EDA) porque te permite ver la relación entre todas las variables numéricas de tu dataset en una sola vista panorámica.
+
+¿Qué es un pairplot?
+Es una matriz de gráficos donde:
+
+En la diagonal: Muestra la distribución (histograma o KDE) de cada variable individual.
+
+Fuera de la diagonal: Muestra diagramas de dispersión (scatter plots) cruzando cada par de variables. Esto te permite identificar instantáneamente si hay correlaciones lineales, agrupaciones (clusters) o valores atípicos.
+
+Implementación con Seaborn
+Usaremos el dataset de ejemplo que veníamos trabajando (Glucosa, Presión, Edad).
+
+Python
+import seaborn as sns
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+
+# 1. Creamos un dataset simulado más rico
+np.random.seed(42)
+df = pd.DataFrame({
+    'Glucosa': np.random.normal(100, 15, 100),
+    'Presion': np.random.normal(120, 10, 100),
+    'Edad': np.random.randint(20, 70, 100),
+    'Estado': np.random.choice(['Sano', 'Enfermo'], 100)
+})
+
+# 2. Generamos el pairplot
+# 'hue' permite diferenciar visualmente por categoría
+sns.pairplot(df, hue='Estado', palette='viridis', diag_kind='kde')
+
+plt.suptitle("Análisis de Relaciones: Pairplot del Dataset", y=1.02)
+plt.show()
+
+Cómo interpretar los resultados de este gráfico:
+Identificación de Clusters: Si ves que los puntos de "Sano" (color A) y "Enfermo" (color B) se agrupan en regiones distintas en algún cruce (ej. Glucosa vs Presión), has encontrado una variable discriminante potente para tu modelo de IA.
+
+Correlaciones: Si ves que los puntos forman una línea diagonal clara, existe una correlación fuerte entre esas dos variables.
+
+Anomalías: Si ves puntos muy alejados del resto en un cruce específico, esos son outliers. Dependiendo del contexto, pueden ser errores de medición que deberías limpiar o casos clínicos únicos que valen la pena estudiar.
+
+Distribución: Observa los gráficos de la diagonal. Si la curva de "Enfermos" es muy distinta a la de "Sanos", esa variable es fundamental para la predicción.
+
+¿Por qué esto es Nivel II?
+Un pairplot es el paso previo lógico antes de aplicar cualquier modelo de Machine Learning (como k-NN o SVM). Si al ver el pairplot notas que tus datos están muy mezclados y no hay separación visual, sabrás de antemano que tu modelo tendrá dificultades (como el 0.45 de precisión que vimos anteriormente) y necesitarás aplicar más Ingeniería de Características o buscar variables más relevantes.
+
+
+
+

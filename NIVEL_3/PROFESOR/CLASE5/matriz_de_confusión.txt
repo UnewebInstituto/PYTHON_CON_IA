@@ -1,0 +1,10 @@
+La matriz de confusión mostrada en la imagen es una herramienta fundamental para evaluar el rendimiento de un modelo de clasificación. 
+
+Su objetivo es contrastar las predicciones realizadas por el modelo frente a los valores reales de los datos.  
+
+Aquí tienes la explicación detallada de cada cuadrante:
+
+* Verdadero Positivo (VP): El modelo predijo correctamente la clase positiva (por ejemplo, identificó correctamente un grano como "Basmati").  
+* Verdadero Negativo (VN): El modelo predijo correctamente la clase negativa (por ejemplo, identificó correctamente un grano como "Otros" o "No Premium").  
+* Falso Positivo (FP): El modelo predijo erróneamente que era positivo cuando en realidad era negativo (identificó un grano común como "Basmati").  
+* Falso Negativo (FN): El modelo predijo erróneamente que era negativo cuando en realidad era positivo (pasó por alto un grano "Basmati" y lo clasificó como "Otros").  

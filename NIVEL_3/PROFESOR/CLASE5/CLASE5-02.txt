@@ -1,0 +1,77 @@
+### 2. Wine Quality Dataset
+https://www.kaggle.com/datasets/uciml/red-wine-quality-cortez-et-al-2009
+
+Aunque es de vinos, es el dataset más utilizado para aprender a detectar la calidad de un producto basado en propiedades fisicoquímicas (pH, sulfatos, alcohol, acidez, etc.).
+
+* **Por qué te sirve:** A diferencia del anterior, aquí la calidad no es una categoría de nombre, sino un **valor numérico (o escala)**. Te obliga a transformar un problema de regresión o clasificación multiclase en uno binario ("Aceptable" vs "Rechazado").
+
+Campos del data set:
+fixed acidity,volatile acidity,citric acid,residual sugar,chlorides,free sulfur dioxide,total sulfur dioxide,density,pH,sulphates,alcohol,quality
+
+Para aplicar lo aprendido con el **Wine Quality Dataset**, el reto principal es convertir una escala numérica de calidad (del 3 al 9) en una decisión binaria: **"Vino de Alta Calidad"** (aprobado) vs. **"Vino Estándar"** (rechazado).
+
+### Código para el Modelo Predictivo de Calidad de Vinos
+
+Este script realiza la carga, ingeniería de variables, entrenamiento con validación cruzada y evaluación mediante métricas de laboratorio.
+
+```python
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import StratifiedKFold, cross_val_predict
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import confusion_matrix, classification_report
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# 1. Carga del dataset (asegúrate de tener el archivo winequality-red.csv)
+df = pd.read_csv('winequality-red.csv', sep=';')
+
+# 2. Ingeniería de Variable Objetivo
+# Transformamos la escala 3-9 a binario: 
+# Calidad >= 7 se considera 'Alta Calidad' (1), de lo contrario 'Estándar' (0)
+df['Es_Alta_Calidad'] = np.where(df['quality'] >= 7, 1, 0)
+
+# 3. Preparación de X e y
+X = df.drop(columns=['quality', 'Es_Alta_Calidad'])
+y = df['Es_Alta_Calidad']
+
+# 4. Configuración de Validación Cruzada Estratificada
+# Usamos 5 splits para asegurar que el modelo vea suficientes vinos 'Alta Calidad'
+skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+modelo = RandomForestClassifier(n_estimators=150, random_state=42)
+
+# Predicciones mediante validación cruzada
+y_pred_cv = cross_val_predict(modelo, X, y, cv=skf)
+
+# 5. Evaluación de Métricas
+print("--- Reporte de Clasificación (Validación Cruzada) ---")
+print(classification_report(y, y_pred_cv))
+
+# 6. Visualización de Matriz de Confusión
+cm = confusion_matrix(y, y_pred_cv)
+plt.figure(figsize=(6, 5))
+sns.heatmap(cm, annot=True, fmt='d', cmap='Reds', 
+            xticklabels=['Estándar', 'Alta Calidad'], 
+            yticklabels=['Estándar', 'Alta Calidad'])
+plt.xlabel('Predicho')
+plt.ylabel('Real')
+plt.title('Matriz de Confusión: Clasificación de Vinos')
+plt.show()
+
+```
+
+---
+
+### Análisis Estratégico para tu Laboratorio
+
+1. **Transformación Binaria:** En la línea `np.where(df['quality'] >= 7, 1, 0)`, estamos definiendo nuestro "estándar de laboratorio". Si para tu proyecto el umbral de calidad fuera diferente (por ejemplo, solo aceptar 8 y 9), bastaría con cambiar este número.
+2. **Manejo de Desbalance:** En el Wine Dataset, los vinos de "Alta Calidad" suelen ser una minoría. El uso de `StratifiedKFold` es fundamental aquí: si no lo usáramos, el modelo podría aprender a decir siempre "Estándar" y obtener un 80% de acierto, pero fallando totalmente en identificar el producto Premium.
+3. **Métricas de Laboratorio:**
+* **Recall (Vinos Alta Calidad):** Te indica qué porcentaje de los mejores vinos fueron detectados. Si es bajo, estás desperdiciando producto Premium vendiéndolo como Estándar.
+* **Precision (Vinos Alta Calidad):** Te indica qué tan fiable es tu modelo cuando dice que un vino es de "Alta Calidad". Si es bajo, estás etiquetando vinos comunes como Premium, lo que afecta tu reputación.
+
+NOTA:
+*****
+
+La curva ROC y el valor AUC son métricas estándar utilizadas para evaluar el rendimiento de los modelos de clasificación binaria (aquellos que predicen entre dos clases, como verdadero/falso o sano/enfermo).1. Curva ROC (Receiver Operating Characteristic)Es un gráfico que ilustra la capacidad de diagnóstico de un modelo en todos los umbrales de clasificación posibles. Relaciona dos variables en cada punto de corte:Eje Y (Sensibilidad o Tasa de Verdaderos Positivos): Mide la proporción de casos positivos reales que el modelo identificó correctamente.Eje X (Tasa de Falsos Positivos): Mide la proporción de casos negativos reales que el modelo clasificó erróneamente como positivos.En la gráfica, una curva que se arquea fuertemente hacia la esquina superior izquierda indica que el modelo logra una alta tasa de verdaderos positivos manteniendo una baja tasa de falsos positivos.2. Valor AUC (Área Bajo la Curva)Es un valor escalar (un número) que resume gráficamente el rendimiento de la curva ROC en un solo resultado, evaluando el desempeño del modelo para todos los umbrales posibles.Interpretación: Representa la probabilidad de que el modelo clasifique un ejemplo positivo elegido al azar con una puntuación más alta que un ejemplo negativo elegido al azar.Valores típicos:1.0 (o 100%): Es un modelo perfecto que separa ambas clases sin errores.0.5 (o 50%): Equivale a lanzar una moneda; el modelo no tiene capacidad para discriminar entre las clases.Menor a 0.5: El modelo está haciendo las predicciones de manera inversa.¿Por qué son útiles?Permiten elegir un umbral de decisión óptimo dependiendo de si te perjudican más los falsos positivos o los falsos negativos.Son independientes de la escala de probabilidad del modelo y no dependen de la proporción de clases presentes en el conjunto de datos.Para más información, puedes revisar los recursos detallados en Google for Developers o el tutorial especializado de DataCamp.Si estás evaluando un modelo, ¿podrías indicarme:El tipo de problema que estás resolviendo (ej. detección de fraudes, diagnóstico médico)?Si tus datos están desequilibrados (una clase mucho más frecuente que la otra)?Puedo ayudarte a decidir si esta métrica es la adecuada o si te conviene usar otra alternativa.
+

@@ -1,0 +1,241 @@
+La **Ingeniería de Características** (*Feature Engineering*) es el proceso de transformar datos crudos en formatos que los algoritmos de aprendizaje automático puedan entender y procesar de manera óptima. Sin este paso, muchos modelos de IA fallarían al intentar interpretar texto o escalas numéricas incompatibles.
+
+A continuación, desarrollo los dos pilares:
+
+---
+
+### 1. Transformación de Variables Categóricas
+
+Los modelos de IA trabajan exclusivamente con números. Las variables categóricas (ej. "Rojo", "Azul", "Verde") deben convertirse a formatos numéricos.
+
+#### A. One-Hot Encoding
+
+Se crea una nueva columna para cada categoría posible, con un `1` si el valor está presente y `0` si no.
+
+* **Ejemplo:**
+
+```python
+import pandas as pd
+
+df = pd.DataFrame({'color': ['Rojo', 'Azul', 'Verde']})
+
+# Transformación One-Hot
+df_encoded = pd.get_dummies(df, columns=['color'])
+print(df_encoded)
+# Resultado:
+#    color_Azul  color_Rojo  color_Verde
+# 0           0           1            0
+# 1           1           0            0
+# 2           0           0            1
+
+```
+
+#### B. Label Encoding (Codificación Ordinal)
+
+Se asigna un número único a cada categoría. Es útil cuando existe un orden lógico (ej. "Bajo", "Medio", "Alto").
+
+* **Ejemplo:**
+
+```python
+df = pd.DataFrame({'calidad': ['Bajo', 'Alto', 'Medio']})
+mapeo = {'Bajo': 1, 'Medio': 2, 'Alto': 3}
+
+df['calidad_num'] = df['calidad'].map(mapeo)
+print(df)
+
+```
+
+---
+
+### 2. Escalado de Datos
+
+El escalado garantiza que todas las variables numéricas tengan un peso similar, evitando que características con números grandes (ej. "Salario") dominen sobre las pequeñas (ej. "Edad").
+
+#### A. Estandarización (Z-score)
+
+Transforma los datos para que tengan una media de 0 y una desviación estándar de 1. Es ideal para modelos como SVM o redes neuronales.
+
+* **Ejemplo:**
+
+```python
+from sklearn.preprocessing import StandardScaler
+import numpy as np
+
+datos = np.array([[25, 50000], [30, 60000], [35, 75000]])
+scaler = StandardScaler()
+
+datos_estandarizados = scaler.fit_transform(datos)
+print(datos_estandarizados)
+
+```
+
+#### B. Normalización (Min-Max)
+
+Escala los datos al rango [0, 1]. Muy útil cuando los datos no siguen una distribución normal o para algoritmos basados en distancias (como k-NN).
+
+* **Ejemplo:**
+
+```python
+from sklearn.preprocessing import MinMaxScaler
+
+scaler = MinMaxScaler()
+datos_normalizados = scaler.fit_transform(datos)
+print(datos_normalizados)
+
+```
+
+---
+
+### ¿Por qué este proceso es vital?
+
+1. **Reducción de Sesgos:** Evita que el modelo "piense" que una variable es más importante solo porque tiene números más grandes.
+2. **Eficiencia Matemática:** Los algoritmos convergen mucho más rápido cuando los datos están centrados y escalados correctamente.
+3. **Compatibilidad:** Permite introducir información cualitativa (nombres, colores, tipos) en sistemas de cálculo matemático puro.
+
+Estas técnicas, junto con la limpieza de datos, conforman el **Nivel II** de preparación, garantizando que el "alimento" de tu IA sea de la mayor calidad posible.
+
+/////////////////////////////////////////////////////////
+// Scikit-learn** (usualmente referida como `sklearn`) //
+/////////////////////////////////////////////////////////
+
+https://scikit-learn.org/stable/
+
+**Scikit-learn** (usualmente referida como `sklearn`) es la librería más importante y robusta de Python para el **Aprendizaje Automático (Machine Learning)**. Su diseño está pensado para que sea accesible tanto para principiantes como para expertos, y es el estándar de la industria para algoritmos de propósito general.
+
+Aquí te presento sus características clave y las áreas donde destaca:
+
+### 1. ¿Qué la hace especial?
+
+A diferencia de librerías como TensorFlow o PyTorch (que se especializan en Deep Learning), `sklearn` destaca por su **consistencia**. Casi todos sus algoritmos siguen la misma estructura de métodos:
+
+* `.fit()`: Entrena el modelo con los datos.
+* `.predict()`: Genera predicciones sobre nuevos datos.
+* `.transform()`: Modifica los datos (en el caso de preprocesamiento).
+
+### 2. Principales áreas de funcionalidad
+
+`sklearn` no es solo para "hacer modelos", sino para todo el flujo de trabajo:
+
+* **Preprocesamiento (Feature Engineering):** Como vimos en tu material de Nivel II, `sklearn` ofrece herramientas de escalado (`StandardScaler`, `MinMaxScaler`) y codificación (`OneHotEncoder`, `LabelEncoder`) para preparar los datos.
+* **Clasificación:** Para predecir etiquetas o categorías (ej. detectar si un correo es Spam o no). Incluye SVM, Random Forest, Árboles de Decisión, Regresión Logística, etc.
+* **Regresión:** Para predecir valores continuos (ej. predecir el precio de una casa).
+* **Agrupamiento (Clustering):** Algoritmos como K-Means para encontrar patrones o grupos ocultos en datos no etiquetados.
+* **Reducción de Dimensionalidad:** Técnicas como PCA (Análisis de Componentes Principales) para simplificar datasets complejos manteniendo la información vital.
+* **Selección de Modelo y Evaluación:** Permite dividir datos en *train/test*, realizar validación cruzada (`cross_val_score`) y calcular métricas de éxito (precisión, recall, F1-score).
+
+### 3. Ejemplo práctico: Flujo de trabajo básico
+
+Este es un ejemplo de cómo se integran estas partes para crear un modelo de clasificación:
+
+/// GENERACIÓN DE DATOS DE PRUEBA:
+import numpy as np
+import pandas as pd
+
+# Generamos 100 pacientes ficticios con 3 características cada uno
+np.random.seed(42)
+X = np.random.rand(100, 3) * 100  # Matriz de 100 filas y 3 columnas (ej. Glucosa, Presión, Edad)
+
+# Generamos la respuesta: 0 (Sano) o 1 (Enfermo)
+y = np.random.choice([0, 1], size=100)
+
+# ¡Listo! Ya puedes pegar el resto de tu código abajo de estas líneas
+
+/////////////////////////////
+
+```python
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+
+# 1. Dividir data en entrenamiento y prueba
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+# 2. Escalar los datos (Ingeniería de Características)
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# 3. Entrenar modelo
+modelo = RandomForestClassifier()
+modelo.fit(X_train, y_train)
+
+# 4. Predecir y evaluar
+predicciones = modelo.predict(X_test)
+print(f"Precisión: {accuracy_score(y_test, predicciones)}")
+
+```
+
+### ¿Por qué deberías aprenderla en este Nivel II?
+
+Mientras que **Pandas** te sirve para manipular y limpiar la estructura de los datos, **Scikit-learn** es el motor que utilizas para convertir esos datos en "inteligencia". Es el puente necesario para pasar de un reporte estadístico a un sistema predictivo capaz de tomar decisiones autónomas.
+
+//////////////////
+/// K-NN y SVN ///
+//////////////////
+
+`k-NN` y `SVM` son dos de los algoritmos más fundamentales en el aprendizaje supervisado. Ambos se utilizan principalmente para **clasificación** (asignar categorías a datos) y, ocasionalmente, para **regresión** (predecir valores numéricos).
+
+Aquí te explico ambos conceptos, destacando sus diferencias y aplicaciones:
+
+---
+
+### 1. k-NN (k-Nearest Neighbors - k Vecinos Más Cercanos)
+
+El `k-NN` es un algoritmo basado en **instancias** o memoria. Es muy intuitivo: "dime con quién andas y te diré quién eres".
+
+* **Cómo funciona:** Cuando llega un nuevo dato, el algoritmo busca los `k` puntos más cercanos a él en el espacio (usando distancias como la euclidiana). El nuevo dato será clasificado en la categoría que predomine entre sus vecinos.
+* **Características clave:**
+* **No paramétrico:** No hace suposiciones sobre la forma de los datos.
+* **Costoso en inferencia:** Debe calcular la distancia contra todos los datos de entrenamiento cada vez que quiere clasificar algo.
+
+
+* **Uso ideal:** Recomendación de productos (basado en usuarios similares) o clasificación simple donde la base de datos no sea masiva.
+
+---
+
+### 2. SVM (Support Vector Machines - Máquinas de Vectores de Soporte)
+
+El `SVM` es un algoritmo mucho más robusto basado en **fronteras de decisión**. Su objetivo es encontrar la "mejor" línea o hiperplano que separe dos categorías.
+
+* **Cómo funciona:** Busca separar las clases de datos maximizando el "margen" (la distancia entre la frontera y los puntos más cercanos de cada clase, llamados **vectores de soporte**). Si los datos no son separables con una línea recta, el `SVM` usa el **"Truco del Kernel"** para proyectar los datos a una dimensión superior donde sí puedan separarse.
+* **Características clave:**
+* **Efectivo en alta dimensión:** Excelente cuando tienes muchas más variables que observaciones.
+* **Resistente al sobreajuste (overfitting):** Al enfocarse solo en los puntos críticos (vectores de soporte), es menos sensible al ruido.
+
+
+* **Uso ideal:** Clasificación de imágenes, reconocimiento de texto o análisis genómico.
+
+---
+
+### Resumen Comparativo
+
+| Característica | k-NN | SVM |
+| --- | --- | --- |
+| **Principio** | Proximidad (distancia) | Frontera óptima (hiperplano) |
+| **Memoria** | Necesita guardar todos los datos | Solo guarda los vectores de soporte |
+| **Velocidad** | Lento en clasificación | Rápido en clasificación |
+| **Sensibilidad** | Muy sensible a datos atípicos (outliers) | Muy robusto frente a outliers |
+
+### ¿Cómo elegir?
+
+* Usa **k-NN** si tus datos son simples, quieres algo rápido de implementar y tienes un dataset pequeño o mediano.
+* Usa **SVM** cuando la precisión es crítica, tienes muchas variables y los datos son complejos, ya que su capacidad para crear fronteras no lineales mediante *Kernels* lo hace muy potente.
+
+En el ecosistema de **Scikit-learn**, ambos se implementan de forma casi idéntica:
+
+```python
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
+
+# k-NN
+knn = KNeighborsClassifier(n_neighbors=5)
+knn.fit(X_train, y_train)
+
+# SVM
+svm = SVC(kernel='linear') # o 'rbf' para datos complejos
+svm.fit(X_train, y_train)
+
+```
+
+

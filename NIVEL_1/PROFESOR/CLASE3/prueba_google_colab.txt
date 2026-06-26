@@ -1,0 +1,60 @@
+Para escalar tus algoritmos en Google Colab, **NumPy** es la herramienta estándar porque reemplaza las iteraciones de Python (lentas) por operaciones vectorizadas ejecutadas en C. Cuando trabajas con datasets grandes, el objetivo es evitar los bucles `for` y las funciones `map` tradicionales.
+
+Aquí tienes cómo transformar el ejemplo funcional para que escale masivamente usando **NumPy**:
+
+### 1. El poder de la Vectorización
+
+En lugar de procesar elemento a elemento con `map` o comprensión de listas, NumPy aplica la operación a todo el bloque de memoria de forma simultánea.
+
+```python
+import numpy as np
+
+# Simulamos un dataset de 10 millones de puntos (ocupa ~80MB en RAM)
+# Esto sería muy lento con listas nativas o funciones 'map'
+datos_grandes = np.random.randn(10000000)
+
+# Pipeline Funcional Vectorizado:
+# 1. Filtrar (solo positivos)
+# 2. Transformar (elevar al cuadrado)
+# Todo ocurre en una fracción de segundo gracias a la vectorización
+resultado = datos_grandes[datos_grandes > 0] ** 2
+
+print(f"Procesados {len(resultado)} elementos eficientemente.")
+
+```
+
+### 2. Por qué esto escala mejor en Colab
+
+* **Gestión de Memoria:** A diferencia de las listas de Python (que almacenan objetos), los arrays de NumPy almacenan tipos de datos homogéneos en bloques de memoria contiguos. Esto permite que el procesador de tu instancia de Colab utilice instrucciones SIMD (*Single Instruction, Multiple Data*).
+* **Velocidad:** Las operaciones vectorizadas ocurren a nivel de lenguaje C, evitando el *overhead* (coste extra) que tiene cada iteración del intérprete de Python.
+
+### 3. Ejemplo escalable para cargar archivos (Pandas + NumPy)
+
+Si tu dataset es más grande que la RAM, no intentes cargarlo todo. Usa el concepto de *chunking* (lectura por partes) combinado con la potencia de NumPy:
+
+```python
+import pandas as pd
+import numpy as np
+
+# Si el dataset es enorme, leemos por bloques (chunks)
+# Cada bloque es un array de NumPy listo para ser procesado
+def procesar_dataset_en_partes(ruta_archivo):
+    chunk_size = 100000
+    for chunk in pd.read_csv(ruta_archivo, chunksize=chunk_size):
+        # Usamos NumPy para aplicar la lógica funcional rápidamente
+        valores = chunk['columna_objetivo'].values
+        resultado = np.square(valores[valores > 0])
+        
+        # Aquí guardarías el resultado o harías el cálculo agregado
+        print(f"Bloque procesado: {len(resultado)} elementos")
+
+# Esto permite procesar datasets de Gigabytes usando solo unos Megabytes de RAM
+
+```
+
+### Resumen para tu flujo de trabajo:
+
+1. **Evita `map` y `filter**` si puedes usar NumPy. La programación funcional pura en Python es excelente para la legibilidad, pero NumPy es el estándar industrial para el **rendimiento**.
+2. **Mantén la memoria limpia:** Usa `del` para borrar datasets intermedios que ya no necesites dentro de tu notebook de Colab.
+3. **Aprovecha el Kernel:** Colab tiene acceso a aceleración por hardware (GPU/TPU). Si usas arrays de NumPy, puedes moverlos a una librería llamada `CuPy`, que tiene la misma sintaxis que NumPy pero ejecuta todo el código funcional directamente en la tarjeta gráfica, lo que escala el procesamiento hasta 100x más rápido.
+

@@ -1,0 +1,131 @@
+El **Aprendizaje No Supervisado** es una rama de la IA donde el modelo no recibe etiquetas (respuestas correctas). En su lugar, el algoritmo debe explorar los datos para encontrar estructuras, patrones o agrupaciones ocultas por sí mismo.
+
+La técnica más emblemática para esto es **K-Means**, el cual utilizaremos para la segmentación de clientes en nuestros datos de prueba.
+
+---
+
+## 1. Fundamentos Teóricos: ¿Qué es K-Means?
+
+K-Means es un algoritmo de *clustering* (agrupación) que divide un conjunto de datos en K grupos (clústeres) distintos basados en similitud.
+
+### ¿Cómo funciona el proceso?
+
+1. **Inicialización:** Eliges el número de grupos K. El algoritmo coloca K puntos aleatorios llamados "centroides".
+2. **Asignación:** Cada cliente es asignado al centroide más cercano (basado en distancia euclidiana: La distancia euclidiana es la medida de la longitud del segmento de línea recta que conecta dos puntos en un espacio. Es la forma más intuitiva de medir la "distancia" entre dos puntos, equivalente a la distancia que medirías con una regla física en un plano o en un espacio tridimensiona ).
+3. **Actualización:** Se calcula el nuevo centroide de cada grupo promediando todos los puntos que pertenecen a él.
+4. **Iteración:** Los pasos 2 y 3 se repiten hasta que los centroides ya no se mueven (convergencia).
+
+### ¿Cómo saber cuántos grupos (K) usar?
+
+Se utiliza el **Método del Codo (Elbow Method)**:
+
+### Nota ###
+El **Método del Codo (Elbow Method)** es una técnica heurística utilizada en el aprendizaje no supervisado para determinar el número óptimo de clústeres (K) en un algoritmo de particionamiento como K-Means.
+
+--- Atención ---
+Una técnica heurística es un enfoque para la resolución de problemas o el descubrimiento de conocimientos que no garantiza ser perfecto, óptimo o exhaustivo, pero que es suficientemente bueno y eficiente para alcanzar un objetivo en un tiempo razonable.
+
+En términos sencillos: es una "regla empírica" o un "atajo mental" que simplifica la toma de decisiones cuando la solución exacta es demasiado costosa, compleja o imposible de calcular.
+
+Usar una técnica heurística es elegir la velocidad y la utilidad por encima de la perfección matemática. Es la base de gran parte del funcionamiento de la Inteligencia Artificial moderna, donde muchas veces no necesitamos la solución "perfecta", sino una solución que funcione muy bien y muy rápido.
+--- ---
+
+### Concepto Central
+
+Cuando aplicas K-Means, el objetivo es minimizar la **inercia** (también llamada *Within-Cluster Sum of Squares* o WCSS). La inercia mide qué tan compactos y cercanos están los puntos de datos respecto al centroide de su propio grupo.
+
+* Si aumentas el número de clústeres (K), la inercia siempre disminuye, porque cada punto está más cerca de su centroide más cercano.
+* Si K fuera igual al número total de datos, la inercia sería cero, pero no habrías segmentado nada realmente útil.
+
+El Método del Codo busca el equilibrio entre tener pocos grupos (que no segmentan bien) y tener demasiados grupos (que sobreajustan los datos).
+
+### ¿Cómo identificar el "Codo"?
+
+1. **Ejecución:** Ejecutas el algoritmo K-Means varias veces, variando el número de clústeres (por ejemplo, desde K=1 hasta K=10).
+2. **Gráfica:** Graficas el número de clústeres en el eje X y la inercia correspondiente en el eje Y.
+3. **Observación:** Observarás una curva descendente. Inicialmente, la inercia cae rápidamente, pero a medida que agregas más clústeres, la tasa de caída disminuye.
+4. **Localización:** El "codo" es el punto donde la curva cambia de pendiente bruscamente, formando un ángulo parecido a un codo humano. Este punto representa el valor de K a partir del cual añadir más clústeres no proporciona una mejora significativa en la compactación de los grupos.
+
+### Consideraciones prácticas
+
+* **Subjetividad:** A veces, el "codo" no es perfectamente claro o hay múltiples puntos que parecen serlo. En esos casos, se pueden utilizar métodos complementarios como el **Coeficiente de Silueta** para confirmar la calidad de la segmentación.
+* **Propósito del negocio:** A veces, el "codo" matemático sugiere 3 grupos, pero para fines de estrategia comercial, podrías preferir 4 o 5. La técnica ofrece una guía estadística, no una regla absoluta e inamovible.
+
+############
+
+* Calculas la "Inercia" (suma de distancias al cuadrado dentro de cada grupo) para diferentes valores de K.
+* El punto donde la inercia deja de disminuir bruscamente (formando un ángulo parecido a un codo) es el valor óptimo de K.
+
+---
+
+## 2. Aplicación Práctica: Segmentación de Clientes
+
+Segmentar clientes permite personalizar ofertas. Agruparemos clientes basados en `Sales` (Volumen) y `Profit_Margin` (Rentabilidad).
+
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+
+# 1. Carga de datos, ingeniería de variables y preprocesamiento (se mantienen igual) ...
+
+# Cargar el dataset
+ruta = "C:/Users/duque/Documents/Henry Duque/UNEWEB/PYTHON_CON_IA/NIVEL_2/PROFESOR/CLASE5/Ecommerce_Sales_Data_2024_2025.csv"
+df = pd.read_csv(ruta)
+
+# Calcular el Margen de Ganancia Porcentual
+# Margen = (Profit / Sales) * 100
+# Si Sales es 0, evitamos división por cero usando fillna(0)
+df['Profit_Margin'] = (df['Profit'] / df['Sales']) * 100
+df['Profit_Margin'] = df['Profit_Margin'].fillna(0)
+
+# Preparar los datos
+df_cl = df[['Sales', 'Profit_Margin']].copy()
+scaler = StandardScaler() # Importante: K-Means es sensible a la escala
+df_scaled = scaler.fit_transform(df_cl)
+
+# 2. Encontrar el número óptimo de K (Método del Codo)
+inercias = []
+for k in range(1, 11):
+    km = KMeans(n_clusters=k, random_state=42, n_init=10)
+    km.fit(df_scaled)
+    inercias.append(km.inertia_)
+
+plt.plot(range(1, 11), inercias, marker='o')
+plt.title('Método del Codo para rendimiento de las ventas')
+plt.xlabel('Número de Clústeres (K)')
+plt.ylabel('Inercia')
+plt.show()
+
+# 3. Aplicar K-Means (Supongamos que elegimos K=3)
+kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
+df['Cluster'] = kmeans.fit_predict(df_scaled)
+
+# 4. Visualizar los segmentos
+plt.scatter(df['Sales'], df['Profit_Margin'], c=df['Cluster'], cmap='viridis')
+plt.title('Segmentación de Clientes - por Ventas')
+plt.xlabel('Ventas')
+plt.ylabel('Margen de Utilidad')
+plt.show()
+
+```
+
+---
+
+## 3. Interpretación de los Resultados
+
+Una vez aplicado el modelo, debes analizar las características de cada clúster para darles valor de negocio:
+
+| Segmento | Descripción probable | Estrategia de Negocio |
+| --- | --- | --- |
+| **Clúster 0** | Bajo volumen, baja rentabilidad. | No invertir excesivamente en marketing. |
+| **Clúster 1** | Alto volumen, alta rentabilidad. | **Clientes VIP:** Fidelización y atención premium. |
+| **Clúster 2** | Alto volumen, baja rentabilidad. | Revisar costos operativos o ajustar precios. |
+
+### Consideraciones clave para tu proyecto:
+
+* **Escalamiento:** K-Means mide distancias. Si no usas `StandardScaler`, la variable `Sales` (que puede ser de miles) dominará sobre `Profit_Margin` (que es un porcentaje), haciendo que el modelo ignore la rentabilidad.
+* **Sensibilidad:** K-Means es muy sensible a los *outliers* (valores atípicos). Asegúrate de limpiar tu CSV de ventas extremas antes de ejecutar el clustering.
+
+

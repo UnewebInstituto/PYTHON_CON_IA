@@ -1,0 +1,158 @@
+La densidad de kernel (o KDE por sus siglas en inglés) es una técnica estadística y de análisis espacial que permite suavizar un conjunto de datos para visualizar su distribución continua. En lugar de usar barras rígidas (como un histograma), superpone una curva suave sobre cada punto de datos y las suma para crear una sola superficie continua.
+
+/////
+
+
+El **Análisis Exploratorio de Datos (EDA)** es la etapa más importante antes de entrenar cualquier modelo de inteligencia artificial. Se trata de "interrogar" a tus datos para descubrir su estructura, detectar anomalías y entender qué variables son realmente útiles.
+
+A continuación, te presento las técnicas fundamentales para realizar un EDA profesional antes de aplicar algoritmos.
+
+---
+
+### 1. Inspección Estructural (El "Check-up")
+
+Antes de graficar, necesitas saber qué tienes en tus manos.
+
+* **Técnicas clave:**
+* `.info()`: Verifica tipos de datos (¿hay números leídos como texto?) y valores nulos.
+* `.describe()`: Obtén estadísticas básicas (media, desviación, mínimos y máximos).
+* `.head()` y `.tail()`: Observa la integridad visual de los registros.
+
+
+
+```python
+import pandas as pd
+
+# Carga de datos
+df = pd.read_csv("datos_pacientes.csv")
+
+# Inspección básica
+print(df.info())      # ¿Hay celdas vacías?
+print(df.describe())  # ¿Hay valores atípicos (outliers)?
+
+```
+///////////////////////////////////////////////
+// Ejemplo del código completo
+///////////////////////////////////////////////
+
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# 1. Carga
+df = pd.read_csv("datos_pacientes.csv")
+
+# 2. Inspección rápida
+print("Primeras filas:")
+print(df.head())
+
+print("\nResumen estadístico:")
+print(df.describe())
+
+# 3. Ejemplo de visualización rápida (EDA)
+sns.boxplot(x='Estado_Salud', y='Glucosa', data=df)
+plt.title("Distribución de Glucosa por Estado de Salud")
+plt.show()
+
+
+//
+
+
+
+
+---
+
+### 2. Detección de Valores Nulos y Duplicados
+
+Un modelo con datos sucios aprenderá basura ("Garbage in, Garbage out").
+
+* **Técnica:** Identificar el porcentaje de datos faltantes para decidir si eliminar registros o imputar valores.
+
+```python
+# Ver cuánto porcentaje de datos falta por columna
+nulos = df.isnull().mean() * 100
+print(nulos)
+
+# Decisión: Si es poco, elimina. Si es mucho, imputa (con la media o mediana)
+df.fillna(df.median(), inplace=True)
+
+##################################################### 
+# El dataframe al estar conformado por columnas
+# de diferente tipo, al emplearse el método fillna()
+# fallará. Se debe especificar el parámetro
+# numeric_only=True, a fin de soló aplicar
+# la mediana "df1.median(numeric_only=True)" para
+# las columnas numéricas de los valores faltantes.
+##################################################### 
+# df1.fillna(df1.median(numeric_only=True), inplace=True)
+
+```
+
+---
+
+### 3. Visualización Univariada (Distribuciones)
+
+El objetivo es ver cómo se comporta cada variable de forma aislada.
+
+* **Histogramas y Boxplots:** Son esenciales para detectar **outliers**. Si en un boxplot ves puntos lejos de la "caja", investiga si son errores de sensor o casos reales interesantes.
+
+```python
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Boxplot para ver la distribución y outliers de la presión arterial
+sns.boxplot(x=df['Presion'])
+plt.title("Detección de Outliers en Presión")
+plt.show()
+
+```
+
+---
+
+### 4. Visualización Multivariada (Relaciones)
+
+Aquí buscas qué variables están conectadas.
+
+* **Matriz de Correlación:** Identifica si dos variables se mueven juntas.
+* **Pairplot:** Te permite cruzar todas las variables numéricas para detectar agrupaciones.
+
+```python
+# Mapa de calor de correlaciones
+sns.heatmap(df.corr(), annot=True, cmap='coolwarm')
+
+#
+# El dataframe al estar conformado por columnas
+# de diferente tipo, al emplearse el método corr()
+# fallará. Se debe especificar el parámetro
+# numeric_only=True, a fin de soló aplicar
+# la correlación "df.corr(numeric_only=True)" para
+# las columnas numéricas.
+#
+# sns.heatmap(df.corr(numeric_only=True), annot=True, cmap='coolwarm')
+
+
+plt.show()
+
+# Pairplot para cruzar todas las variables y buscar clusters
+sns.pairplot(df, hue='Estado_Salud')
+plt.show()
+
+```
+
+---
+
+### ¿Por qué estas técnicas son críticas para tu modelo?
+
+1. **Evitas Sesgos:** Al detectar correlaciones, puedes eliminar variables que miden lo mismo (redundancia) y que podrían confundir a tu modelo (multicolinealidad).
+2. **Limpieza Inteligente:** Entiendes si los valores atípicos son errores que debes borrar o "casos especiales" que tu modelo debe aprender a detectar.
+3. **Selección de Algoritmo:** Si ves que tus datos no se separan linealmente en los gráficos, sabes que **no** debes usar un modelo lineal simple y que necesitarás un algoritmo no lineal como *Random Forest* o *SVM* con *kernel* RBF.
+
+### Resumen del Flujo EDA
+
+* **Limpieza:** Gestiona nulos y duplicados.
+* **Análisis Univariado:** ¿Cómo se distribuyen mis datos? (Histogramas).
+* **Análisis Multivariado:** ¿Cómo se relacionan mis datos? (Heatmaps/Pairplots).
+* **Decisión:** ¿Qué variables son realmente valiosas para mi modelo predictivo?
+
+**Un consejo profesional:** Dedica el 70% de tu tiempo al EDA y a la limpieza; solo el 30% restante al entrenamiento del modelo. Un modelo mediocre con datos perfectamente explorados y limpios suele vencer a un algoritmo avanzado con datos sucios.
+

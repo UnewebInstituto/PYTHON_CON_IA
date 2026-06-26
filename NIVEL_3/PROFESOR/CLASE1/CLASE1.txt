@@ -1,0 +1,538 @@
+Para avanzar en el **Nivel III: Machine Learning**, vamos a desglosar estos conceptos fundamentales. `Scikit-Learn` es la herramienta que unifica todo este conocimiento bajo una sintaxis intuitiva.
+
+https://scikit-learn.org/stable/index.html
+
+
+---
+
+### 1. Introducción a Scikit-Learn
+
+Es la librería estándar para Machine Learning en Python debido a que ofrece herramientas consistentes para el modelado, preprocesamiento y evaluación.
+
+**El "Pipeline" estándar de Scikit-Learn:**
+
+1. **Importar:** Seleccionar el algoritmo.
+2. **Instanciar:** Crear el objeto del modelo (ej. `modelo = LinearRegression()`).
+3. **Entrenar (`fit`):** La máquina aprende de los datos (`X_train`, `y_train`).
+4. **Predecir (`predict`):** Generar resultados con datos nuevos (`X_test`).
+5. 
+**Evaluar:** Medir el rendimiento (ej. error o precisión).
+
+---
+
+### 2. Aprendizaje Supervisado
+
+El aprendizaje supervisado ocurre cuando entrenamos un modelo con datos que ya tienen la respuesta (etiquetas).
+
+#### A. Regresión Lineal y Logística
+
+* 
+**Regresión Lineal:** Se usa cuando el **objetivo (target) es un número continuo**.
+
+* *Ejemplo práctico:* Predecir las ventas exactas (en dólares) de tu e-commerce para el próximo mes basándote en la inversión en marketing.
+* *Código:* 
+`from sklearn.linear_model import LinearRegression`
+
+
+* 
+**Regresión Logística:** Se usa para **clasificación** (binaria: sí/no, 0/1).
+
+
+* *Ejemplo práctico:* Clasificar si una compra es "Fraude" (1) o "Legítima" (0) analizando el monto y la ubicación del usuario.
+
+
+
+#### B. Árboles de Decisión y Random Forest
+
+Estos son modelos basados en estructuras de decisión.
+
+* 
+**Árboles de Decisión:** Funcionan como un diagrama de flujo donde el modelo hace preguntas binarias a los datos (¿Es el monto > $500? Sí/No) hasta llegar a una conclusión.
+
+
+* **Random Forest:** Es la evolución. Crea un "bosque" de múltiples árboles de decisión independientes y promedia sus resultados para ser mucho más preciso y evitar errores de un solo árbol.
+
+* *Ejemplo práctico:* Segmentación avanzada de clientes para predecir si un usuario volverá a comprar (Churn Prediction).
+
+---
+
+### Ejemplo Práctico: Implementación Básica
+
+Supongamos que queremos predecir si un cliente es de "Alto Valor" (1) o "Bajo Valor" (0) usando un Árbol de Decisión:
+
+```python
+import pandas as pd
+import numpy as np
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import MinMaxScaler
+
+# 1. Cargar datos
+df = pd.read_csv("C:/Users/duque/Documents/Henry Duque/UNEWEB/PYTHON_CON_IA/NIVEL_2/PROFESOR/CLASE5/Ecommerce_Sales_Data_2024_2025.csv")
+
+# 2. Calcular el Margen de Ganancia Porcentual
+# Margen = (Profit / Sales) * 100
+# Si Sales es 0, evitamos división por cero usando fillna(0)
+df['Profit_Margin'] = (df['Profit'] / df['Sales']) * 100
+df['Profit_Margin'] = df['Profit_Margin'].fillna(0)
+
+# 3. Ajustar el valor para que esté estrictamente en el rango 0-100
+# Usamos MinMaxScaler para forzar cualquier valor a estar entre 0 y 100
+scaler = MinMaxScaler(feature_range=(0, 100))
+df['Profit_Scaled'] = scaler.fit_transform(df[['Profit_Margin']])
+
+# 4. Ahora definimos el Target (Ejemplo: ¿Es altamente rentable? > 80 en la escala 0-100)
+df['Target_Alto_Valor'] = (df['Profit_Scaled'] > 80).astype(int)
+
+# 5. Preparamos X (Features)
+# Convertimos categóricas a numéricas para que el modelo no falle
+df_model = pd.get_dummies(df, columns=['Category', 'Payment Mode'], drop_first=True)
+features = ['Sales', 'Quantity', 'Discount', 'Profit_Scaled'] + [c for c in df_model.columns if 'Category_' in c or 'Payment Mode_' in c]
+
+X = df_model[features]
+y = df['Target_Alto_Valor']
+
+# 6. Entrenamiento con DecisionTreeClassifier
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+modelo = DecisionTreeClassifier()
+modelo.fit(X_train, y_train)
+
+print("Modelo entrenado con Profit escalado entre 0 y 100.")
+
+predicciones = modelo.predict(X_test)
+
+print(f"Precisión del modelo: {accuracy_score(y_test, predicciones)}")
+
+
+```
+
+###########################################
+
+
+Para avanzar en nuestro camino hacia el dominio del Machine Learning, es fundamental entender que **un modelo no es mejor por tener una precisión alta, sino por ser útil ante el problema real**.
+
+---
+
+### 1. Teoría y Práctica: Evaluación de Modelos
+
+En clasificación, la "precisión" (accuracy) puede engañarnos. Si tienes un dataset donde el 99% de las transacciones son legítimas y solo el 1% es fraude, un modelo que diga que *todo* es legítimo tendrá 99% de precisión, pero será inútil porque fallará en detectar el 100% de los fraudes.
+
+#### La Matriz de Confusión
+
+Es una tabla que nos permite visualizar el rendimiento de un modelo comparando las predicciones reales contra las correctas.
+
+|  | Predicción: Negativo | Predicción: Positivo |
+| --- | --- | --- |
+| **Real: Negativo** | Verdadero Negativo (TN) | Falso Positivo (FP) |
+| **Real: Positivo** | Falso Negativo (FN) | Verdadero Positivo (TP) |
+
+* **Falsos Positivos (FP):** "Error tipo I". El modelo dice que es positivo (ej. fraude), pero no lo es.
+* **Falsos Negativos (FN):** "Error tipo II". El modelo dice que es negativo (ej. seguro), pero es un fraude. **Este suele ser el error más peligroso**.
+
+#### Implementación Práctica
+
+```python
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import confusion_matrix, classification_report
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# 1. Cargar datos
+ruta = "C:/Users/duque/Documents/Henry Duque/UNEWEB/PYTHON_CON_IA/NIVEL_2/PROFESOR/CLASE5/Ecommerce_Sales_Data_2024_2025.csv"
+df = pd.read_csv(ruta)
+
+# 2. Ingeniería de variables (Debemos crear X e y aquí)
+# Calculamos el margen y creamos el target
+df['Profit_Margin'] = (df['Profit'] / df['Sales']) * 100
+df['Target_Alto_Valor'] = (df['Profit_Margin'] > 10).astype(int) # Ajusta este umbral según necesites
+
+# Preprocesamiento: convertimos columnas categóricas a numéricas
+df_model = pd.get_dummies(df, columns=['Category', 'Payment Mode'], drop_first=True)
+
+# Definimos X e y (aquí es donde se crean y dejan de dar error)
+features = ['Sales', 'Quantity', 'Discount', 'Profit']
+X = df_model[features]
+y = df_model['Target_Alto_Valor']
+
+# 3. Dividir datos
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# 4. Entrenamiento
+modelo = DecisionTreeClassifier()
+modelo.fit(X_train, y_train)
+
+# 5. Predicción y Evaluación
+y_pred = modelo.predict(X_test)
+
+cm = confusion_matrix(y_test, y_pred)
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+plt.title('Matriz de Confusión')
+plt.show()
+
+print(classification_report(y_test, y_pred))
+```
+
+---
+
+### 2. Proyecto: Aplicación al Dataset
+
+Para poner en práctica esto con tu dataset `Ecommerce_Sales_Data_2024_2025.csv`, vamos a definir un objetivo claro. Dado que tenemos columnas como `Sales`, `Profit`, `Discount` y `Category`, podemos atacar el problema de **Clasificación de Rentabilidad**.
+
+#### El Objetivo
+
+Predecir si una orden será **"Rentable"** (Profit > 0) o **"No Rentable"** (Profit <= 0).
+
+#### Paso a paso para tu código:
+
+1. **Etiquetado (Target):** Crearemos una columna `is_profitable` (1 si Profit > 0, 0 en otro caso).
+2. **Selección de Features:** Usaremos `Sales`, `Discount`, `Quantity` y `Category` (codificándola a números, ya que Scikit-Learn no entiende texto).
+3. **Entrenamiento:** Usaremos un `Random Forest` para clasificar si la orden será rentable o no.
+4. **Evaluación:** Analizaremos la **Matriz de Confusión** para ver cuántas ventas no rentables el modelo fue capaz de detectar.
+
+##############################
+
+Para preparar tu dataset para `Scikit-Learn`, debemos transformar las variables categóricas en un formato numérico que el algoritmo pueda interpretar matemáticamente. Utilizaremos el método **One-Hot Encoding** (`pd.get_dummies`), que es el estándar para variables categóricas sin un orden jerárquico natural (como las categorías de productos o métodos de pago).
+
+DESCRIPCIÓN DEL CÓDIGO QUE SE PROCESARÁ A CONTNUACIÓN:
+
+Este código es un flujo de trabajo profesional para preparar datos antes de entrenar un modelo de Machine Learning. Su objetivo principal es transformar un archivo CSV de ventas en un formato matemático que un algoritmo pueda entender.
+
+Aquí te detallo qué hace cada bloque:
+
+### 1. Carga del Dataset
+
+Utiliza `pandas` para leer el archivo CSV desde una ruta local. En este punto, los datos son una tabla cruda ("raw data") que contiene texto y fechas, los cuales no pueden ser procesados directamente por modelos matemáticos.
+
+### 2. Ingeniería de Variables (Feature Engineering)
+
+Aquí defines qué quieres que aprenda el modelo. Creas una columna nueva llamada `is_profitable` que actúa como **Target** (la respuesta correcta).
+
+* Es un proceso de **etiquetado automático**: convierte una variable continua (`Profit`) en una variable binaria (1 para rentable, 0 para no rentable).
+
+### 3. Preprocesamiento: Codificación (Encoding)
+
+Este es el paso técnico más importante. Los modelos de `scikit-learn` no entienden texto como "Electrónica" o "Tarjeta de Crédito".
+
+* `pd.get_dummies` utiliza una técnica llamada **One-Hot Encoding**. Transforma cada categoría en columnas nuevas con valores 0 y 1.
+* `drop_first=True` es una medida estadística necesaria para evitar la **multicolinealidad** (redundancia), asegurando que el modelo no se confunda con variables que explican lo mismo.
+
+### 4. Selección de Características (Features)
+
+El modelo no puede aprender de todo.
+
+* **Limpieza:** Eliminas columnas que no aportan valor predictivo, como `Customer Name` (el nombre del cliente no determina si una venta será rentable) o `Order ID` (que es solo un identificador único).
+* **Preparación de X e y:** Separas el dataset en dos objetos: `X` (las variables predictoras o "las pistas") e `y` (la variable objetivo o "la respuesta").
+
+### 5. División en Entrenamiento y Prueba
+
+Utilizas `train_test_split` para fragmentar los datos:
+
+* **80% (Entrenamiento):** Es el conjunto con el que el modelo aprenderá los patrones (el "cerebro").
+* **20% (Prueba):** Es el conjunto "secreto" que el modelo nunca verá durante el entrenamiento, y que usarás al final para validar si realmente aprendió o si solo memorizó los datos.
+
+### ¿Por qué este código es robusto?
+
+* **Usa `random_state=42`:** Garantiza que, cada vez que ejecutes este código, la división de los datos sea idéntica. Esto permite comparar diferentes algoritmos de forma justa.
+* **Manejo de columnas:** El uso de una lista `cols_to_drop` y una comprensión de listas hace que el código sea resiliente; si alguna columna no existe en el archivo en el futuro, el código no fallará.
+
+
+### NOTA DE INTERÉS ####
+El uso de `random_state=42` es una convención que se utiliza en la comunidad de Ciencia de Datos por razones técnicas y culturales. No tiene una propiedad matemática especial, pero cumple funciones críticas para el trabajo profesional.
+
+Aquí te explico los dos motivos principales:
+
+### 1. La razón técnica: Reproducibilidad
+
+Cuando realizas tareas como dividir tus datos (`train_test_split`) o inicializar modelos, el proceso involucra una mezcla aleatoria (*shuffling*).
+
+* **Sin `random_state`:** Cada vez que ejecutas tu código, los datos se mezclan de forma distinta. Esto significa que tu modelo se entrenará con un conjunto de datos ligeramente diferente cada vez, lo que provocará que tus resultados (precisión, error) fluctúen sin que hayas cambiado nada en tu lógica.
+* **Con `random_state=42`:** Estableces una "semilla" (*seed*) para el generador de números pseudoaleatorios. Esto garantiza que la mezcla sea **idéntica en cada ejecución**.
+
+**¿Por qué esto es vital para tu proyecto?**
+
+* **Comparación justa:** Si quieres saber si un `Random Forest` es mejor que un `Decision Tree`, necesitas que ambos vean exactamente los mismos datos de prueba. Si la división cambia cada vez, no puedes estar seguro de qué modelo es realmente superior.
+* **Depuración:** Si obtienes un error extraño o un resultado inesperado, necesitas poder recrear exactamente la misma condición para investigar qué sucedió.
+
+### 2. La razón cultural: "El número 42"
+
+El uso específico del número **42** es un "guiño" o homenaje a la cultura geek. Proviene de la famosa novela de ciencia ficción *Guía del autoestopista galáctico* de Douglas Adams. En la historia, el 42 es la "respuesta a la pregunta fundamental sobre la vida, el universo y todo lo demás".
+
+* **Es solo una convención:** Puedes usar cualquier número entero (como `0`, `1`, `7`, `100`). El código funcionará exactamente igual.
+* **Estandarización:** Se ha convertido en un estándar de facto en tutoriales, documentación de `Scikit-Learn` y repositorios de GitHub. Cuando alguien ve `random_state=42` en tu código, inmediatamente entiende que estás siguiendo una práctica estándar de la industria.
+
+### Resumen de mejores prácticas:
+
+1. **Usa siempre un `random_state**` cuando trabajes con particiones de datos o algoritmos estocásticos (que contienen azar).
+2. **Mantén el mismo número** a lo largo de todo tu proyecto para que tus resultados sean consistentes.
+3. No te preocupes si decides cambiar el `42` por otro número; lo importante no es el valor en sí, sino el hecho de que **tienes el control sobre la aleatoriedad** de tu modelo.
+
+
+########################
+
+En resumen, este script transforma un registro de ventas común en un **dataset estructurado para aprendizaje supervisado**. Una vez que este código finaliza, el siguiente paso lógico es instanciar un modelo (como `RandomForestClassifier`) y pasarle `X_train` e `y_train` para que empiece a aprender.
+
+#####
+
+Aquí tienes el script para realizar este preprocesamiento:
+
+```python
+import pandas as pd
+from sklearn.model_selection import train_test_split
+
+# 1. Cargar el dataset
+ruta = "C:/Users/duque/Documents/Henry Duque/UNEWEB/PYTHON_CON_IA/NIVEL_2/PROFESOR/CLASE5/Ecommerce_Sales_Data_2024_2025.csv"
+df = pd.read_csv(ruta)
+
+# 2. Ingeniería de variables: Crear la variable objetivo (Target)
+# Definimos 1 si el Profit es mayor a 0 (Rentable), y 0 en caso contrario
+df['is_profitable'] = (df['Profit'] > 0).astype(int)
+
+# 3. Preprocesamiento: Codificación de variables categóricas
+# Usamos 'drop_first=True' para evitar la multicolinealidad
+df_encoded = pd.get_dummies(df, columns=['Category', 'Payment Mode', 'Region'], drop_first=True)
+
+# 4. Selección de Features (X) y Target (y)
+# Excluimos columnas no numéricas que no aportan valor predictivo directo o son identificadores
+cols_to_drop = [
+    'Order ID', 'Order Date', 'Customer Name', 'City', 
+    'Product Name', 'Sub-Category', 'Profit', 'is_profitable'
+]
+
+# Aseguramos que solo trabajamos con columnas numéricas resultantes del encoding
+X = df_encoded.drop(columns=[col for col in cols_to_drop if col in df_encoded.columns])
+y = df_encoded['is_profitable']
+
+# 5. División en entrenamiento (80%) y prueba (20%)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+print(f"Dimensiones de X_train: {X_train.shape}")
+print(f"Las primeras filas de X procesadas:\n{X_train.head()}")
+
+```
+### Explicación técnica del preprocesamiento:
+
+* **One-Hot Encoding (`pd.get_dummies`):** Convierte una columna como `Category` (con valores como 'Electrónica', 'Muebles') en varias columnas binarias (ej. `Category_Muebles: 0 o 1`). Esto permite que el modelo entienda estas categorías sin asumir que una es "mayor" que la otra.
+
+* **`drop_first=True`:** Es una buena práctica técnica para evitar la "trampa de la variable ficticia" (redundancia estadística), donde una columna puede ser inferida por las demás.
+* 
+**Limpieza de Features:** Es crucial eliminar columnas de texto libre (como `Customer Name` o `Order ID`) antes de entrenar, ya que estas no tienen una relación matemática que el modelo de clasificación pueda explotar.
+
+
+* 
+**División `train_test_split`:** Separa los datos para asegurar que el modelo sea evaluado con información que **nunca vio durante el entrenamiento**, permitiendo detectar si está memorizando los datos (overfitting) o realmente aprendiendo patrones.
+
+#############################################
+
+Vamos a completar el flujo de trabajo de Machine Learning conectando el preprocesamiento con el modelo **Random Forest** y la evaluación mediante la **Matriz de Confusión**.
+
+### Script Integrado: Entrenamiento y Evaluación
+
+Este script toma los datos que preparamos anteriormente y realiza el entrenamiento, la predicción y la visualización de resultados.
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+
+# 1. Cargar el dataset
+ruta = "C:/Users/duque/Documents/Henry Duque/UNEWEB/PYTHON_CON_IA/NIVEL_2/PROFESOR/CLASE5/Ecommerce_Sales_Data_2024_2025.csv"
+df = pd.read_csv(ruta)
+
+# 2. Ingeniería de variables: Crear la variable objetivo (Target)
+# Definimos 1 si el Profit es mayor a 0 (Rentable), y 0 en caso contrario
+df['is_profitable'] = (df['Profit'] > 0).astype(int)
+
+# 3. Preprocesamiento: Codificación de variables categóricas
+# Usamos 'drop_first=True' para evitar la multicolinealidad
+df_encoded = pd.get_dummies(df, columns=['Category', 'Payment Mode', 'Region'], drop_first=True)
+
+# 4. Selección de Features (X) y Target (y)
+# Excluimos columnas no numéricas que no aportan valor predictivo directo o son identificadores
+cols_to_drop = [
+    'Order ID', 'Order Date', 'Customer Name', 'City', 
+    'Product Name', 'Sub-Category', 'Profit', 'is_profitable'
+]
+
+# Aseguramos que solo trabajamos con columnas numéricas resultantes del encoding
+X = df_encoded.drop(columns=[col for col in cols_to_drop if col in df_encoded.columns])
+y = df_encoded['is_profitable']
+
+# 5. División en entrenamiento (80%) y prueba (20%)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+print(f"Dimensiones de X_train: {X_train.shape}")
+print(f"Las primeras filas de X procesadas:\n{X_train.head()}")
+
+
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import confusion_matrix, classification_report
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# 1. Instanciar y entrenar el modelo Random Forest
+# Usamos n_estimators=100 para crear 100 árboles de decisión en el "bosque"
+rf_model = RandomForestClassifier(n_estimators=100, random_state=42)
+rf_model.fit(X_train, y_train)
+
+# 2. Realizar predicciones
+y_pred = rf_model.predict(X_test)
+
+# 3. Generar la Matriz de Confusión
+cm = confusion_matrix(y_test, y_pred)
+
+# 4. Visualización de la Matriz de Confusión
+plt.figure(figsize=(8, 6))
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
+            xticklabels=['No Rentable', 'Rentable'], 
+            yticklabels=['No Rentable', 'Rentable'])
+plt.title('Matriz de Confusión - Clasificación de Rentabilidad')
+plt.xlabel('Predicción del Modelo')
+plt.ylabel('Valor Real')
+plt.show()
+
+# 5. Mostrar métricas detalladas (Precisión, Recall, F1-Score)
+print("Reporte de Clasificación:")
+print(classification_report(y_test, y_pred))
+
+
+### ¿Cómo interpretar estos resultados para tu proyecto?
+
+Una vez ejecutes este código, obtendrás dos elementos clave:
+
+1. **La Matriz de Confusión (Heatmap):**
+* **Diagonal principal (arriba-izquierda a abajo-derecha):** Son las predicciones correctas.
+* **Cuadrantes fuera de la diagonal:** Son los errores. Observa especialmente cuántos casos "Rentables" fueron clasificados erróneamente como "No Rentables" (Falsos Negativos), ya que esto significa perder oportunidades de negocio identificadas.
+
+
+2. **Reporte de Clasificación (`classification_report`):**
+* **Precision:** De todos los que el modelo predijo como rentables, ¿cuántos lo fueron realmente?
+* **Recall:** De todos los que realmente eran rentables en el dataset, ¿cuántos logró capturar el modelo?
+* **F1-Score:** Es el equilibrio entre precisión y recall. Es la métrica más robusta si tus datos de "Rentable" y "No Rentable" no están perfectamente balanceados.
+
+##############################################
+ATENCIÓN: Hubo un warning
+Este error, `UserWarning: A single label was found in 'y_true' and 'y_pred'`, ocurre cuando **todos tus datos de prueba (`y_test`) o todas las predicciones de tu modelo (`y_pred`) pertenecen a una sola categoría**.
+
+En otras palabras: el modelo es "demasiado bueno" (o el dataset está muy desbalanceado) y cree que **todas** las ventas son rentables (o todas son no rentables). Como el modelo nunca predijo una de las categorías, la matriz de confusión no puede mostrarse en su formato completo de 2x2.
+
+### ¿Por qué sucede esto?
+
+1. **Dataset Desbalanceado:** Si en tu archivo el 99% de las ventas son rentables (`is_profitable = 1`), el modelo aprende rápidamente que siempre puede decir "1" y acertar casi siempre.
+2. **Features insuficientes:** Es posible que las columnas que dejaste en `X` no contengan información suficiente para diferenciar cuándo una venta es realmente "No Rentable".
+
+### Cómo corregir este problema
+
+Aquí tienes las soluciones más efectivas:
+
+#### 1. Verifica el desbalance de tus datos
+
+Añade esto antes de entrenar para ver cuántos "0" y "1" tienes:
+
+```python
+print(y.value_counts())
+
+```
+
+Si ves algo como *1: 9000, 0: 50*, tus datos están muy desbalanceados.
+
+#### 2. Fuerza las etiquetas en la Matriz de Confusión
+
+Puedes forzar a la librería a mostrar la matriz de 2x2 aunque falte una clase, añadiendo el parámetro `labels`:
+
+```python
+cm = confusion_matrix(y_test, y_pred, labels=[0, 1]) # 0 = No Rentable, 1 = Rentable
+
+```
+
+#### 3. Mejora el balance usando `class_weight`
+
+Si tu modelo siempre predice una sola clase, indícale que la clase minoritaria es igual de importante que la mayoritaria. Modifica tu instancia del modelo así:
+
+```python
+# 'balanced' ajusta automáticamente los pesos según la frecuencia de las clases
+rf_model = RandomForestClassifier(n_estimators=100, random_state=42, class_weight='balanced')
+rf_model.fit(X_train, y_train)
+
+```
+
+#### 4. Revisa tus variables (Features)
+
+Si sigues recibiendo el error, significa que tu variable `is_profitable` es casi constante.
+
+* Asegúrate de que `Profit` realmente tenga una variación importante en tu CSV.
+* Intenta incluir más variables en `X` que podrían ayudar al modelo a distinguir los casos, como `Quantity` o `Discount` (que ya tienes, pero asegúrate de que no se pierdan en el preprocesamiento).
+
+### ¿Qué hacer ahora?
+
+Ejecuta `print(y.value_counts(normalize=True))` para ver qué porcentaje de tus ventas son rentables. Si el resultado es algo como `1: 0.98` y `0: 0.02`, el modelo no tiene suficientes ejemplos de "No Rentables" para aprender a distinguirlos. En ese caso, la solución no es cambiar el código, sino **buscar más datos de ventas que hayan resultado en pérdidas** para que el modelo pueda ver ambos lados de la moneda.
+
+¿Cuál es la proporción que te arroja `y.value_counts()`?
+
+##### CÓDIGO AJUSTADO PARA QUE NO PRODUZCA EL WARNING ####
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import confusion_matrix, classification_report
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# ... (Tu carga de datos, ingeniería de variables y preprocesamiento se mantienen igual) ...
+
+# 1. Cargar el dataset
+ruta = "C:/Users/duque/Documents/Henry Duque/UNEWEB/PYTHON_CON_IA/NIVEL_2/PROFESOR/CLASE5/Ecommerce_Sales_Data_2024_2025.csv"
+df = pd.read_csv(ruta)
+
+# 2. Ingeniería de variables: Crear la variable objetivo (Target)
+# Definimos 1 si el Profit es mayor a 0 (Rentable), y 0 en caso contrario
+df['is_profitable'] = (df['Profit'] > 0).astype(int)
+
+# 3. Preprocesamiento: Codificación de variables categóricas
+# Usamos 'drop_first=True' para evitar la multicolinealidad
+df_encoded = pd.get_dummies(df, columns=['Category', 'Payment Mode', 'Region'], drop_first=True)
+
+# 4. Selección de Features (X) y Target (y)
+# Excluimos columnas no numéricas que no aportan valor predictivo directo o son identificadores
+cols_to_drop = [
+    'Order ID', 'Order Date', 'Customer Name', 'City', 
+    'Product Name', 'Sub-Category', 'Profit', 'is_profitable'
+]
+
+# Aseguramos que solo trabajamos con columnas numéricas resultantes del encoding
+X = df_encoded.drop(columns=[col for col in cols_to_drop if col in df_encoded.columns])
+y = df_encoded['is_profitable']
+
+
+# 5. División en entrenamiento y prueba
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# CORRECCIÓN 1: Usamos 'class_weight="balanced"'
+# Esto obliga al Random Forest a dar más importancia a la clase minoritaria
+rf_model = RandomForestClassifier(n_estimators=100, random_state=42, class_weight='balanced')
+rf_model.fit(X_train, y_train)
+
+# 2. Realizar predicciones
+y_pred = rf_model.predict(X_test)
+
+# CORRECCIÓN 2: Pasamos el parámetro 'labels=[0, 1]'
+# Esto garantiza que la matriz siempre tenga el formato 2x2, incluso si falta una clase
+cm = confusion_matrix(y_test, y_pred, labels=[0, 1])
+
+# 4. Visualización de la Matriz de Confusión
+plt.figure(figsize=(8, 6))
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
+            xticklabels=['No Rentable', 'Rentable'], 
+            yticklabels=['No Rentable', 'Rentable'])
+plt.title('Matriz de Confusión - Clasificación de Rentabilidad')
+plt.xlabel('Predicción del Modelo')
+plt.ylabel('Valor Real')
+plt.show()
+
+# 5. Mostrar métricas detalladas
+print("Reporte de Clasificación:")
+print(classification_report(y_test, y_pred, labels=[0, 1], zero_division=0))
+
+##############################################
+

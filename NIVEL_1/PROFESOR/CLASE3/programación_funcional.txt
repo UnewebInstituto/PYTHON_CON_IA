@@ -1,0 +1,85 @@
+• Programación Funcional: Comprensión de listas, funciones lambda, map y filter (clave para optimizar algoritmos).
+
+La **Programación Funcional** en Python es un paradigma que trata la computación como la evaluación de funciones matemáticas, evitando estados compartidos y datos mutables. Para el manejo de grandes volúmenes de datos (objetivo en el *Nivel I*), es vital porque permite procesar información de manera declarativa, concisa y, a menudo, más eficiente.
+
+Aquí tienes el desarrollo de los conceptos clave con ejemplos prácticos ejecutables en tu entorno:
+
+---
+
+### 1. Comprensión de Listas (List Comprehensions)
+
+Es la forma más "Pythonica" de crear listas transformando datos de otra lista en una sola línea. Reduce la complejidad ciclomática al eliminar bucles `for` explícitos.
+
+* **Ejemplo:** Transformar una lista de precios a una nueva lista con el impuesto aplicado.
+
+```python
+precios = [100, 200, 300]
+precios_con_iva = [p * 1.16 for p in precios]
+print(f"Precios finales: {precios_con_iva}")
+
+```
+
+### 2. Funciones Lambda
+
+Son funciones anónimas (sin nombre) de una sola línea. Se usan frecuentemente cuando necesitas pasar una función como argumento a otra función sin definirla formalmente con `def`.
+
+* **Ejemplo:** Una función simple que eleva al cuadrado.
+
+```python
+cuadrado = lambda x: x**2
+print(f"El cuadrado de 5 es: {cuadrado(5)}")
+
+```
+
+### 3. Función `map()`
+
+Aplica una función a cada elemento de un iterable (lista, tupla, etc.). Es extremadamente potente para transformar datos en paralelo o en *pipelines*.
+
+* **Ejemplo:** Convertir una lista de cadenas numéricas a enteros.
+
+```python
+str_nums = ["10", "20", "30"]
+ints = list(map(int, str_nums))
+print(f"Lista de enteros: {ints}")
+
+```
+
+### 4. Función `filter()`
+
+Se utiliza para extraer elementos de un iterable que cumplen una condición específica (devuelven `True`).
+
+* **Ejemplo:** Filtrar valores mayores a 25 de un sensor.
+
+```python
+lecturas = [22, 28, 19, 31, 24]
+lecturas_criticas = list(filter(lambda x: x > 25, lecturas))
+print(f"Lecturas que exceden el límite: {lecturas_criticas}")
+
+```
+
+---
+
+### Ejemplo Integrado: El "Pipeline" Funcional
+
+Para tu **Proyecto Nivel 1**, imagina que tienes una lista de datos estadísticos crudos y necesitas limpiarlos y procesarlos en un solo paso. La programación funcional te permite encadenar estas operaciones.
+
+```python
+# Datos crudos: limpiar, filtrar valores negativos y elevar al cuadrado
+datos = [10, -5, 20, -1, 30]
+
+# Pipeline: Filtra positivos -> aplica cuadrado -> convierte a lista
+procesados = list(map(lambda x: x**2, filter(lambda x: x > 0, datos)))
+
+print(f"Datos procesados estadísticamente: {procesados}")
+
+```
+### ¿Por qué esto optimiza algoritmos?
+
+1. 
+**Lazy Evaluation (Evaluación perezosa):** Al combinar funciones, Python no siempre genera listas intermedias gigantes en memoria, lo cual es vital cuando manejas "grandes volúmenes de datos".
+
+2. 
+**Legibilidad:** El código se lee como una serie de transformaciones matemáticas, lo que facilita el mantenimiento en arquitecturas de IA complejas.
+
+3. 
+**Vectorización:** Aunque estos ejemplos son con Python puro, el concepto de aplicar una función a un conjunto completo de datos es el precursor directo de cómo funciona **NumPy**.

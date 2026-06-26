@@ -1,0 +1,271 @@
+C:\Users\duque\Documents\Henry Duque\UNEWEB\PYTHON_CON_IA\NIVEL_1\PROFESOR>.venv\scripts\activate
+
+(.venv) C:\Users\duque\Documents\Henry Duque\UNEWEB\PYTHON_CON_IA\NIVEL_1\PROFESOR>
+
+python -m idlelib
+
+Python 3.12.2 (tags/v3.12.2:6abddd9, Feb  6 2024, 21:26:36) [MSC v.1937 64 bit (AMD64)] on win32
+Type "help", "copyright", "credits" or "license()" for more information.
+ventas = [800, 1500, 950, 1000, 1300, 2500]
+ventas_validas = [ venta for venta in ventas if venta < 1000]
+ventas_validas
+[800, 950]
+print(f"Ventas procesadas sin errores {ventas_validas}")
+Ventas procesadas sin errores [800, 950]
+ventas
+[800, 1500, 950, 1000, 1300, 2500]
+i = 0
+venatas_validas = []
+ventas_validas = []
+del venatas_validas
+while i < len(ventas):
+    if ventas[i] < 1000:
+        ventas_validas.append(ventas[i])
+    i = i + 1
+
+    
+ventas_validas
+[800, 950]
+ventas_validas1 = []
+for venta1 in ventas:
+    if venta1 < 1000:
+        ventas_validas1.append(venta1)
+
+        
+ventas_validas1
+[800, 950]
+precios = [100, 250, 400, 800]
+precios_con_iva = [p * 1.16 for p in precios]
+precios_con_iva
+[115.99999999999999, 290.0, 463.99999999999994, 927.9999999999999]
+# USO DE FUNCIONES LAMBDA
+cuadrado = x: x**2
+SyntaxError: invalid syntax
+cuadrado = lambda x: x**2
+cuadrado(5)
+25
+grupo1 = {101, 102}; grupo2 = {102, 103}
+grupo1.intersection(grupo2)
+{102}
+vistos_ayer = {1,2,3} ; vistos_hoy = {3,4,5}
+vistos_ayer.difference(vistos_hoy)
+{1, 2}
+vistos_hoy.difference(vistos_ayer)
+{4, 5}
+class Persona:
+    # atributos
+    nombre=''
+    apellido=''
+    sexo=''
+    # métodos
+    def setNombre(self,nom):
+        self.nombre = nom
+        return "Nombre asignado"
+    def setApellido(self,ape):
+        self.apellido = ape
+        return "Apellido asignado"
+    def setSexo(self,sex):
+        self.sexo = sex
+        return "Sexo asignado"
+    def getDatos(self):
+        return (self.nombre, self.apellido, self.sexo)
+
+    
+profesor = Persona()
+profesor.getDatos()
+('', '', '')
+profesor.setNombre('HENRY')
+'Nombre asignado'
+profesor.setApellido('DUQUE')
+'Apellido asignado'
+profesor.setSexo('M')
+'Sexo asignado'
+profesor.getDatos()
+('HENRY', 'DUQUE', 'M')
+class Estudiante(Persona):
+    # atributos
+    institucion = ''
+    # métodos
+    def getInstitucion(self):
+        return (getDatos(),self.institucion)
+
+    
+alumno1 = Estudiante()
+alumno1.nombre = "ANA"
+alumno1.apellido = "VASQUEZ"
+alumno1.sexo = "F"
+alumno1.institucion = "UNEWEB"
+alumno1.getInstitucion()
+Traceback (most recent call last):
+  File "<pyshell#70>", line 1, in <module>
+    alumno1.getInstitucion()
+  File "<pyshell#64>", line 6, in getInstitucion
+    return (getDatos(),self.institucion)
+NameError: name 'getDatos' is not defined. Did you mean: 'self.getDatos'?
+class Estudiante(Persona):
+    # atributos
+    institucion = ''
+    # métodos
+    def getInstitucion(self):
+        return (self.getDatos(),self.institucion)
+
+    
+alumno1 = Estudiante()
+alumno1.nombre = "ANA"
+alumno1.apellido = "VASQUEZ"
+alumno1.sexo = "F"
+alumno1.institucion = "UNEWEB"
+
+alumno1.getInstitucion()
+(('ANA', 'VASQUEZ', 'F'), 'UNEWEB')
+class Persona:
+    # atributos
+    nombre=''
+    apellido=''
+    sexo=''
+    # métodos
+    # Definición de un constructor para esta clase
+    def __init__(self, nom, ape, sex):
+        self.nombre = nom
+        self.apellido = ape
+        self.sexo = sex
+    def getDatos(self):        
+        return (self.nombre, self.apellido, self.sexo)
+
+    
+# Borrar el objeto profesor
+del profesor
+del alumno1
+profesor = Persona('HENRY','DUQUE','M')
+profesor
+<__main__.Persona object at 0x00000283BCD25DF0>
+profesor.nombre
+'HENRY'
+profesor.apellido
+'DUQUE'
+profesor.sexo
+'M'
+curso = []
+curso.append(Persona('ANA','VASQUEZ','F'))
+curso.append(Persona('YOLANDA','TORTOZA','F'))
+curso.append(Persona('ANDY','DUARTE','M'))
+curso
+[<__main__.Persona object at 0x00000283BCD25F10>, <__main__.Persona object at 0x00000283BCD25F70>, <__main__.Persona object at 0x00000283BCD26030>]
+for estudiante in curso:
+    estudiante.nombre, estudiante.apellido, estudiante.sexo
+
+    
+('ANA', 'VASQUEZ', 'F')
+('YOLANDA', 'TORTOZA', 'F')
+('ANDY', 'DUARTE', 'M')
+curso[0].nombre
+'ANA'
+curso[0].apellido
+'VASQUEZ'
+curso[0].sexo
+'F'
+
+
+class ProcesarDatos:
+    def __init__(self, nombre, umbral):
+        # atributos de estado
+        self.nombre = nombre
+        self.umbral = umbral
+        self.historial = []
+        
+    def procesar(self, datos):
+        # comportamiento
+        res = [x for x in datos if x > self.umbral]
+        self.historial.append(res)
+        return res
+
+    
+prueba1 = ProcesarDatos('test1',100)
+datos1 = [95,115,150,200,88,36,58]
+prueba1.procesar(datos1)
+[115, 150, 200]
+prueba1.historial
+[[115, 150, 200]]
+datos2 = [55,78,125,66]
+prueba1.procesar(datos2)
+[125]
+prueba1.
+SyntaxError: invalid syntax
+prueba1.historial
+[[115, 150, 200], [125]]
+datos3 = [155,178,25,616]
+prueba1.procesar(datos3)
+[155, 178, 616]
+prueba1.historial
+[[115, 150, 200], [125], [155, 178, 616]]
+[x for sum(x) in prueba1.historial]
+SyntaxError: cannot assign to function call
+[for x in prueba1.historial]
+SyntaxError: invalid syntax
+for x in prueb1.historial:
+    x
+
+    
+Traceback (most recent call last):
+  File "<pyshell#129>", line 1, in <module>
+    for x in prueb1.historial:
+NameError: name 'prueb1' is not defined. Did you mean: 'prueba1'?
+for x in prueba1.historial:
+    x
+
+    
+[115, 150, 200]
+[125]
+[155, 178, 616]
+for x in prueba1.historial:
+    sum(x)
+
+    
+465
+125
+949
+
+for x in prueba1.historial:
+    sum(x)/len(x)
+
+    
+155.0
+125.0
+316.3333333333333
+
+
+
+
+class ProcesarDatos:
+    def __init__(self, nombre, umbral):
+        # atributos de estado
+        self.nombre = nombre
+        self.umbral = umbral
+        self.historial = []
+        
+    def procesar(self, datos):
+        # comportamiento
+        res = [x for x in datos if x > self.umbral]
+        self.historial.append(res)
+        return res
+# Intancia de la clase
+prueba1 = ProcesarDatos('test1',100)
+# Prueba 1
+datos1 = [95,115,150,200,88,36,58]
+prueba1.procesar(datos1)
+# Prueba 2
+datos2 = [55,78,125,66]
+prueba1.procesar(datos2)
+# Prueba 3
+datos3 = [155,178,25,616]
+prueba1.procesar(datos3)
+# Consulta del estado del historial
+print(f"Historial: {prueba1.historial}")
+for x in prueba1.historial:
+    print(f"Promedios del historial:{sum(x)/len(x)}")    
+
+
+import numpy as np
+datos_grandes = np.random.randn(10000000)
+resultado = datos_grandes[datos_grandes > 0]**2
+print(f"Procesados {len(resultado)} elementos eficientemente ")
