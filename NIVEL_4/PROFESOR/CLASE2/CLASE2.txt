@@ -1,0 +1,122 @@
+VISIÓN Artificial
+
+///
+
+La Visión Artificial (Computer Vision) es la rama de la IA que permite a las computadoras "ver" y extraer información significativa de imágenes o videos. En el contexto del ejemplo, esto es fundamental para automatizar el control de calidad del arroz, pasando de un análisis tabular a uno visual.
+
+1. Marco Teórico: De los Píxeles a la Detección
+El procesamiento de imágenes básicas sigue un flujo lógico para que una máquina entienda lo que hay en una imagen:
+
+Representación Digital: Una imagen es una matriz de números donde cada valor representa la intensidad de un píxel (en escala de grises, 0 es negro y 255 blanco).
+
+Preprocesamiento (Filtrado): Se aplican filtros (como desenfoque Gaussiano o suavizado) para reducir el ruido visual y resaltar bordes, lo cual es vital para aislar los granos de arroz del fondo.
+
+Segmentación: Es el proceso de separar los objetos de interés (el arroz) del fondo. Se usan técnicas como la Binarización (convertir la imagen a solo blanco y negro) mediante un umbral (threshold).
+
+Extracción de Características: Una vez segmentado, calculamos propiedades geométricas como área, perímetro, redondez y excentricidad, que son las que alimentan a tu modelo de Keras.
+
+2. Práctica: Detección de Objetos con OpenCV
+Para implementar esto en tu proyecto, utilizaremos OpenCV, la librería estándar de visión artificial. Este script detecta los granos de arroz basándose en umbrales de color:
+
+///
+
+LIBRERÍA: 
+cv2
+La dependencia **`cv2`** es el nombre que recibe el módulo de Python de **OpenCV** (*Open Source Computer Vision Library*).
+
+Es la biblioteca estándar y más utilizada en todo el mundo para el **procesamiento de imágenes y visión artificial** en tiempo real. En el contexto del proyecto, `cv2` es la herramienta que permite que tu sistema "vea" y manipule las fotografías de los lotes de arroz.
+
+### ¿Qué hace exactamente `cv2`?
+
+A nivel técnico, `cv2` interpreta las imágenes como **matrices de números** (arrays de NumPy). Cada píxel de tu foto es un número que `cv2` puede manipular matemáticamente para:
+
+* **Transformación de espacio de color:** Cambiar imágenes a escala de grises, formato HSV (más útil para detectar colores específicos) o RGB.
+* **Filtrado y Reducción de Ruido:** Eliminar "suciedad" visual de la imagen para que el modelo no se confunda.
+* **Detección de Bordes y Contornos:** Identificar dónde termina un grano de arroz y dónde empieza el fondo.
+* **Segmentación:** Separar objetos específicos del resto de la imagen.
+* **Mediciones Geométricas:** Calcular automáticamente el área, perímetro, centroide y redondez de cada grano detectado.
+
+### ¿Cómo se integra en tu proyecto?
+
+Cuando escribes `import cv2`, obtienes acceso a miles de algoritmos optimizados. Para tu flujo de trabajo:
+
+1. **Carga:** `cv2` toma el archivo `.png` o `.jpg` y lo convierte en una matriz de datos que la computadora procesa.
+2. **Procesamiento:** Utilizas funciones de `cv2` para limpiar la imagen y resaltar los granos.
+3. **Extracción de datos:** Utilizas `cv2` para "contar" los objetos y medir sus dimensiones. Estas dimensiones se convierten en los datos numéricos que luego alimentan tu modelo de **Keras**.
+
+### ¿Por qué se llama `cv2`?
+
+Es una curiosidad histórica. Aunque la librería se llama **OpenCV**, el nombre del módulo dentro de Python es `cv2` porque es la versión 2 de la API de OpenCV. Aunque ya existen versiones más modernas (como la 4.x), por razones de compatibilidad con millones de proyectos antiguos, el nombre del paquete sigue siendo `cv2`.
+
+Ejemplo:
+
+///
+
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+from google.colab import drive
+
+# 1. Cargar imagen y convertir a escala de grises
+drive.mount('/content/drive')
+
+img = cv2.imread('/content/drive/MyDrive/data/imagen_arroz.png')
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+# 2. Binarización (Segmentación)
+# Convertimos píxeles claros (arroz) a blanco y resto a negro
+_, thresh = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
+
+# 3. Detección de contornos (Objeto)
+contornos, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+# 4. Dibujar resultados
+resultado = img.copy()
+cv2.drawContours(resultado, contornos, -1, (0, 255, 0), 2)
+
+plt.imshow(cv2.cvtColor(resultado, cv2.COLOR_BGR2RGB))
+plt.title(f'Granos detectados: {len(contornos)}')
+plt.show()
+
+///
+
+Descripción del código:
+
+Este código implementa un proceso básico de **Visión Artificial** para automatizar la identificación y conteo de granos de arroz. Es el paso previo necesario para que se pueda medir las características físicas (área, longitud) antes de clasificarlas.
+
+Aquí tienes la descripción paso a paso de cada instrucción:
+
+### 1. Preparación del Entorno y Carga de Imagen
+
+* `drive.mount('/content/drive')`: Conecta el espacio de almacenamiento de Google Drive al entorno de ejecución de Colab.
+
+* `cv2.imread(...)`: Lee la imagen desde la ruta especificada. La almacena como una matriz de números (formato BGR).
+
+* `cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)`: **Instrucción crítica**. Convierte la imagen original de color a escala de grises. Esto reduce la complejidad de la imagen (de 3 canales de color a 1 solo), facilitando que el algoritmo distinga formas basándose en intensidades de luz.
+
+### 2. Segmentación (Binarización)
+
+* `cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)`: Esta función aplica un "umbral" (thresholding).
+* Todo píxel con un valor menor a 127 (oscuro) se convierte en 0 (negro).
+* Todo píxel mayor a 127 (claro, en este caso el arroz) se convierte en 255 (blanco).
+* El resultado es una **imagen binaria** (solo blanco y negro) que separa nítidamente los objetos del fondo.
+
+### 3. Detección de Objetos (Contornos)
+
+* `cv2.findContours(...)`: Esta función analiza la imagen binaria resultante y detecta los límites (fronteras) de todos los objetos blancos encontrados.
+* `RETR_EXTERNAL`: Indica al algoritmo que solo busque contornos externos (los granos), ignorando huecos dentro de los granos.
+* `CHAIN_APPROX_SIMPLE`: Optimiza la detección, guardando solo los puntos necesarios para definir la forma del objeto.
+
+### 4. Visualización de Resultados
+
+* `img.copy()`: Crea una copia de la imagen original para poder dibujar sobre ella sin perder los colores originales.
+* `cv2.drawContours(...)`: Toma los contornos detectados y los dibuja sobre la copia (`resultado`) usando el color verde `(0, 255, 0)` con un grosor de `2`.
+* `plt.imshow(...)`: Utiliza `Matplotlib` para mostrar la imagen final resultante.
+* `cv2.cvtColor(..., cv2.COLOR_BGR2RGB)`: OpenCV lee imágenes en formato BGR, pero `Matplotlib` las muestra en RGB; esta instrucción es necesaria para que los colores se vean correctamente.
+
+---
+
+### **Resumen**
+
+Este código convierte una imagen real de granos en una representación matemática que la computadora puede "entender". Una vez que el código llega a la variable `contornos`, ya tienes acceso a la geometría individual de cada grano, lo cual es el insumo perfecto para calcular el área y el perímetro que alimentarán tu modelo de red neuronal.
+
