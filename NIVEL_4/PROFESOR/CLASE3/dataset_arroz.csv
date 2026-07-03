@@ -1,0 +1,11 @@
+id,texto_original,categoria_tecnica,polaridad,fuente
+1,Excelente uniformidad y color cristalino,aspecto,1,web
+2,El grano presenta alto porcentaje de yesado,textura,0,encuesta
+3,Mucho contenido de granos rotos en el empaque,integridad,0,app
+4,El arroz tiene una calidad excelente muy blanco,aspecto,1,web
+5,Sabor neutro y buena cocción,sabor,1,encuesta
+6,Demasiadas impurezas y restos de cascarilla,limpieza,0,web
+7,Muy buena apariencia y color claro,aspecto,1,manual_proyecto
+8,Muy mala apariencia y color obscuro,aspecto,0,manual_proyecto
+9,Los granos presentan impurezas y mal olor,limpieza,0,manual_proyecto
+10,Muy buen sabor y consistencia del grano,sabor,1,manual_proyecto

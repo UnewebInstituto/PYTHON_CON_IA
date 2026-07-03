@@ -1,0 +1,3 @@
+7,Muy buena apariencia y color claro,aspecto,1,manual
+
+8,Muy mala apariencia y color obscuro, aspecto,0,manual

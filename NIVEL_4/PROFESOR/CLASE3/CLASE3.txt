@@ -163,6 +163,10 @@ print(f"Predicción (1=Alta, 0=Baja): {resultado[0]}")
 2. **Aprendizaje supervisado:** Tú decides qué define una "buena calidad". Si en tu planta de arroz consideran que un 5% de granos rotos es aceptable, puedes ajustar las etiquetas de tu dataset para que el modelo aprenda tus estándares exactos.
 3. **Escalabilidad:** Puedes empezar con 100 ejemplos y, a medida que pase el tiempo, alimentar el modelo con miles de reseñas reales de tus clientes, haciendo que sea cada vez más preciso.
 
+********************************
+**** CLASE 3 - CONTINUACIÓN ****
+********************************
+
 ### 4. Siguientes pasos profesionales
 
 Si buscas una precisión de nivel experto, la industria utiliza **Transformers (como BERT)**. Estos modelos no solo miran la palabra, sino el contexto completo de la oración.
@@ -222,7 +226,8 @@ Una vez que tengas tu archivo `dataset_arroz.csv` en Google Drive, puedes cargar
 import pandas as pd
 
 # Cargar el CSV
-df = pd.read_csv('/content/drive/MyDrive/data/dataset_arroz.csv')
+# df = pd.read_csv('/content/drive/MyDrive/data/dataset_arroz.csv')
+df = pd.read_csv('dataset_arroz.csv')
 
 # Visualizar el balance de los datos
 print(df['polaridad'].value_counts())
@@ -230,6 +235,12 @@ print(df['polaridad'].value_counts())
 # Separar para entrenamiento
 textos = df['texto_original']
 etiquetas = df['polaridad']
+
+print("TEXTOS:")
+print(textos)
+
+print("ETIQUETAS:")
+print(etiquetas)
 
 ```
 
@@ -244,7 +255,8 @@ import pandas as pd
 import os
 
 # Ruta a tu archivo en Drive
-ruta_csv = '/content/drive/MyDrive/data/dataset_arroz.csv'
+# ruta_csv = '/content/drive/MyDrive/data/dataset_arroz.csv'
+ruta_csv = 'dataset_arroz.csv'
 
 def agregar_reseña():
     # 1. Cargar o crear el CSV
@@ -300,7 +312,8 @@ Aquí tienes la versión mejorada del script. He añadido un **bucle `while**` q
 import pandas as pd
 import os
 
-ruta_csv = '/content/drive/MyDrive/data/dataset_arroz.csv'
+#ruta_csv = '/content/drive/MyDrive/data/dataset_arroz.csv'
+ruta_csv = 'dataset_arroz.csv'
 
 def agregar_reseña():
     # 1. Cargar o crear el CSV
@@ -360,14 +373,26 @@ agregar_reseña()
 
 ////
 
-Para realizar análisis de sentimiento en español de manera profesional, utilizaremos la librería `transformers` de Hugging Face. El modelo que emplearemos es una variante de BERT entrenada específicamente para el idioma español (un modelo multilingüe o específico de la comunidad hispana).
+Para realizar análisis de sentimiento en español de manera profesional, utilizaremos la librería `transformers` de Hugging Face. 
+
+El modelo que emplearemos es una variante de BERT entrenada específicamente para el idioma español (un modelo multilingüe o específico de la comunidad hispana).
 
 ### Ejemplo práctico: Análisis de Sentimiento en Español
 
 Para este ejemplo, usaremos un modelo de clasificación de sentimiento que ya ha sido ajustado para entender el español.
 
+Referencias en la WEB:
+
+https://huggingface.co/docs/transformers/index
+
+introducción a modelos de grandes lenguajes (LLM)
+
+https://huggingface.co/learn/llm-course/chapter1/1?fw=pt
+
 ```python
 # Primero, instala la librería: pip install transformers torch
+
+
 from transformers import pipeline
 
 # 1. Cargamos un pipeline de análisis de sentimiento
@@ -405,5 +430,121 @@ En tu sistema de inspección de calidad, este script podría ejecutarse automát
 * **Si el sentimiento es Negativo (y la confianza es alta):** El sistema podría enviar una alerta automática a tu panel de control marcando el "Lote" del arroz asociado como **"Bajo Inspección"**.
 * **Si el sentimiento es Positivo:** Podrías guardar el comentario para usarlo en tus métricas de satisfacción del cliente.
 
-**¿Te gustaría que viéramos cómo conectar este clasificador con el archivo CSV que estamos construyendo, de modo que el sistema automáticamente "etiquete" las reseñas nuevas antes de que tú las revises?**
+******************************
+**Transformers** y **PyTorch**
+******************************
+
+https://huggingface.co/
+https://huggingface.co/learn/llm-course/chapter1/1?fw=pt
+https://huggingface.co/learn/llm-course/chapter1/1
+https://huggingface.co/docs/transformers/index
+
+https://pytorch.org/
+
+Para entender el estado actual de la Inteligencia Artificial, es necesario distinguir entre la **arquitectura** (la estructura lógica) y el **motor** (la herramienta de computación). **Transformers** y **PyTorch** son las dos piezas que, al unirse, han permitido el auge de los modelos modernos como los que se usan en nuestro proyecto.
+
+---
+
+### 1. ¿Qué son los Transformers? (La Arquitectura)
+
+Introducidos en 2017 por Google, los **Transformers** revolucionaron la IA al resolver el problema de la "memoria" en los modelos de lenguaje.
+
+* **El problema anterior:** Antes, modelos como las RNN (Redes Neuronales Recurrentes) procesaban el texto palabra por palabra, de forma secuencial. Si una frase era larga, el modelo olvidaba el inicio al llegar al final.
+* **La solución - "Atención" (Attention Mechanism):** Los Transformers procesan toda la secuencia de texto **simultáneamente**. Gracias a una técnica llamada *Auto-atención* (Self-Attention), el modelo puede "mirar" todas las palabras de una oración al mismo tiempo y decidir cuáles son más importantes para entender el contexto.
+* *Ejemplo:* En la frase *"El arroz que compré estaba húmedo porque **él** se mojó"*, el Transformer sabe instantáneamente que "**él**" se refiere al "**arroz**", sin importar qué tan lejos estén en la oración.
+
+### 2. ¿Qué es PyTorch? (El Motor de Computación)
+
+PyTorch es una librería de **código abierto** desarrollada por el laboratorio de IA de Meta (Facebook). Es el entorno de desarrollo donde realmente se "construyen" y "entrenan" los modelos como los Transformers.
+
+* **Cálculo de Tensores:** Así como `Numpy` trabaja con arreglos, PyTorch trabaja con **tensores** (matrices multidimensionales). Lo especial de PyTorch es que estos tensores pueden residir en la memoria de una **GPU** (tarjeta gráfica), lo que permite realizar miles de millones de cálculos matemáticos por segundo.
+* **Autograd (Gradiente Automático):** Esta es la joya de la corona. PyTorch calcula automáticamente las derivadas matemáticas necesarias para el *Backpropagation* (el proceso mediante el cual una IA aprende de sus errores). Sin esto, tendrías que calcular manualmente miles de ecuaciones complejas cada vez que quieras mejorar tu modelo.
+* **Dinámico vs. Estático:** PyTorch es conocido por su **grafo de computación dinámico**. Esto significa que puedes modificar el comportamiento de la red neuronal "sobre la marcha" mientras se ejecuta, lo cual es mucho más intuitivo para los investigadores y desarrolladores.
+
+---
+
+### ¿Cómo se relacionan en tu proyecto?
+
+Imagina la relación entre estos dos componentes como la construcción de un motor de un coche de carreras:
+
+1. **Transformers es el diseño del motor:** Es la arquitectura ingenieril que explica cómo deben moverse las piezas para alcanzar alta velocidad y eficiencia en el procesamiento de lenguaje.
+2. **PyTorch es la fábrica y las herramientas:** Es el entorno donde realmente ensamblas las piezas, calibras los sensores y le das energía (computación) al diseño del Transformer para que empiece a funcionar.
+
+**En resumen:**
+Cuando ejecutas código en Hugging Face, estás descargando un diseño de **Transformer** y utilizando el motor de **PyTorch** (o TensorFlow) para que ese diseño procese tus datos de arroz en tu propia computadora o servidor.
+
+* Si quieres **entender** el lenguaje: Usas la arquitectura Transformer.
+* Si quieres **programar, entrenar o ejecutar** ese modelo: Usas PyTorch.
+
+*********************************
+* Ejemplo Transformer y PyTorch *
+*********************************
+
+https://huggingface.co/docs/transformers/index
+
+
+Para entender el corazón de los Transformers, debemos ver la **Atención escalada por producto punto** (*Scaled Dot-Product Attention*). Esta es la función matemática que permite al modelo decidir a qué palabras "prestar atención" dentro de una oración.
+
+A nivel de código, esto se traduce en operaciones matriciales con tensores. Aquí tienes una implementación simplificada utilizando **PyTorch**.
+
+### Script: Capa de Atención Simple
+
+```python
+import torch
+import torch.nn.functional as F
+import math
+
+def scaled_dot_product_attention(query, key, value):
+    """
+    query: Matriz de consultas [batch, seq_len, d_k]
+    key:   Matriz de claves   [batch, seq_len, d_k]
+    value: Matriz de valores  [batch, seq_len, d_v]
+    """
+    d_k = query.size(-1)
+    
+    # 1. Producto punto entre Query y Key traspuesta
+    scores = torch.matmul(query, key.transpose(-2, -1)) / math.sqrt(d_k)
+    
+    # 2. Aplicar Softmax para obtener pesos de atención (suman 1)
+    attention_weights = F.softmax(scores, dim=-1)
+    
+    # 3. Multiplicar pesos por los valores
+    output = torch.matmul(attention_weights, value)
+    return output, attention_weights
+
+# --- Ejemplo de uso ---
+seq_len, d_k = 3, 4 # 3 palabras, dimensión 4
+q = torch.rand(1, seq_len, d_k)
+k = torch.rand(1, seq_len, d_k)
+v = torch.rand(1, seq_len, d_k)
+
+output, weights = scaled_dot_product_attention(q, k, v)
+
+print("Pesos de Atención (Matriz de enfoque):\n", weights)
+print("\nSalida procesada:\n", output)
+
+```
+
+### Desglose de lo que está ocurriendo:
+
+1. **Q, K, V (Query, Key, Value):** Son proyecciones lineales de tus datos.
+* **Query:** Lo que busco.
+* **Key:** La etiqueta de lo que tengo.
+* **Value:** La información real que quiero extraer.
+
+
+2. **`torch.matmul`:** Realiza la multiplicación de matrices. Esto compara qué tan relevante es cada palabra respecto a las demás.
+3. **`math.sqrt(d_k)`:** Es la "escala". Sin dividir por esto, los valores del producto punto crecerían demasiado, enviando al `softmax` a regiones donde el gradiente es casi cero (y el modelo no aprendería nada).
+4. **`F.softmax`:** Convierte los números en **probabilidades**. Si la palabra 1 tiene una puntuación alta respecto a la palabra 3, el `softmax` asignará un valor cercano a 1 al peso de esa relación.
+
+### ¿Por qué es vital este script para el proyecto?
+
+Aunque nunca escribirás esta capa a mano en un entorno de producción (ya que usarás `nn.MultiheadAttention` de PyTorch), entender este script es fundamental porque:
+
+* **Interpretabilidad:** Si algún día necesitas saber **por qué** tu modelo clasificó una reseña como "Negativa", puedes extraer estos `attention_weights` y visualizarlos. Podrías ver que el modelo asignó un peso de atención muy alto a la palabra "impurezas" y "cascarilla".
+* **Depuración:** Si tu modelo de calidad de arroz no está aprendiendo, saber cómo se calculan estos pesos te permite identificar si hay "problemas de escala" en tus datos.
+
+
+
+
 
