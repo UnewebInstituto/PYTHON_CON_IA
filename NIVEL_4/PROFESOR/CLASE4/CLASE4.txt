@@ -64,7 +64,9 @@ Imagina que un estudiante (el **modelo base**) ha pasado años en la universidad
 El camino evolutivo para tu proyecto suele ser este:
 
 1. **Nivel 1 (Baseline):** Usar modelos pre-entrenados básicos o reglas heurísticas (`TextBlob`, `Naive Bayes`). Esto es útil para empezar rápido.
+
 2. **Nivel 2 (Fine-Tuning):** Cuando tengas suficientes datos etiquetados en tu archivo CSV, utilizas **Hugging Face** para descargar un modelo de lenguaje (como un modelo estilo BERT o Mistral) y aplicas fine-tuning con tu dataset de reseñas de arroz.
+
 3. **Resultado:** Obtienes una herramienta que tiene la comprensión profunda de un modelo masivo, pero con la precisión quirúrgica de un experto en tu producto.
 
 ---
@@ -72,7 +74,9 @@ El camino evolutivo para tu proyecto suele ser este:
 ### ¿Cómo se ve el proceso técnico?
 
 1. **Congelar capas:** Generalmente, "congelas" gran parte del modelo base (para no borrar lo que ya sabe) y solo permites que se ajusten las últimas capas o ciertas configuraciones.
+
 2. **Entrenamiento ligero:** Ejecutas el modelo con tus datos específicos durante pocas "épocas" (pasadas por los datos) para no caer en el *overfitting* (donde el modelo memoriza tus datos en lugar de aprender).
+
 3. **Evaluación:** Comparas si el modelo mejoró su precisión en el lenguaje técnico del arroz.
 
 Para hacer *fine-tuning* en ** nuestro proyecto **, utilizaremos un modelo pre-entrenado pequeño (como `distilbert-base-uncased`, que es rápido y eficiente) y lo ajustaremos con tus datos de calidad de arroz.
@@ -93,13 +97,15 @@ pip install transformers datasets evaluate
 Este código carga tu CSV, lo convierte en un formato que el modelo entiende y realiza el ajuste fino:
 
 ```python
+from google.colab import drive
 from datasets import load_dataset
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments, Trainer
 import numpy as np
-import evaluate
 
 # 1. Cargar el dataset desde tu archivo CSV
-dataset = load_dataset('csv', data_files='/content/drive/MyDrive/data/dataset_arroz.csv')
+# 1. Carga de datos desde Drive
+drive.mount('/content/drive')
+dataset = load_dataset('csv', data_files='/content/drive/MyDrive/data/dataset_arroz_finetunig.csv')
 # Dividir en entrenamiento (80%) y validación (20%)
 dataset = dataset['train'].train_test_split(test_size=0.2)
 
@@ -117,8 +123,8 @@ model = AutoModelForSequenceClassification.from_pretrained(model_name, num_label
 
 # 4. Configurar el entrenamiento
 training_args = TrainingArguments(
-    output_dir="./resultado_arroz",
-    evaluation_strategy="epoch",
+    output_dir="/content/drive/MyDrive/resultado_entrenamiento",
+    eval_strategy="epoch",
     per_device_train_batch_size=8,
     num_train_epochs=3, # Pocas épocas para evitar sobreajuste
     save_strategy="epoch"
@@ -144,105 +150,13 @@ trainer.train()
 
 ### ¿Qué ocurre al finalizar?
 
-* El modelo guardará los "pesos" ajustados en la carpeta `./resultado_arroz`.
-* A partir de ese momento, ya no tendrás un modelo genérico, sino un **modelo especializado en el lenguaje técnico de  **.
+* El modelo guardará los "pesos" ajustados en la carpeta `./resultado_entrenamiento`.
+* A partir de ese momento, ya no tendrás un modelo genérico, sino un **modelo especializado en el lenguaje técnico del proyecto **.
 
 ### Recomendación para el éxito:
 
 * **Balanceo:** Si tienes más reseñas positivas que negativas, el modelo podría volverse sesgado. Antes de correr este script, asegúrate de que tu CSV tenga una cantidad similar de ejemplos para ambas categorías.
 * **Validación:** Fíjate siempre en el `eval_loss` (pérdida en validación). Si el valor de entrenamiento baja pero el de validación sube, tu modelo está memorizando (overfitting) en lugar de aprender.
-
-
-Las estadísticas no son solo una herramienta "extra" en el ecosistema de Python; son el **lenguaje base** sobre el cual se construyen todas las librerías que hemos estado estudiando (TensorFlow, Scikit-Learn, Pandas). Sin la estadística, estas librerías serían simplemente calculadoras glorificadas.
-
-Aquí te explico cómo la estadística es el motor de cada una:
-
-### 1. Pandas: La estadística descriptiva como cimiento
-
-Pandas nació para manipular datos, pero su verdadera utilidad surge de la **estadística descriptiva**.
-
-* **El concepto:** Cuando ejecutas `df.describe()`, estás aplicando automáticamente medidas de tendencia central (media, mediana), dispersión (desviación estándar) y percentiles.
-* **Por qué importa:** En ** **, antes de cualquier modelo, usas Pandas para entender la distribución de tus datos (ej. ¿cuántos granos rotos hay en promedio?). Sin estadística, estarías trabajando a ciegas.
-
-### 2. Matplotlib/Seaborn: Visualización de distribuciones
-
-La visualización no es solo "hacer dibujos", es **comunicar hallazgos estadísticos**.
-
-* **El concepto:** Los histogramas, diagramas de caja (*boxplots*) y gráficos de dispersión que generas son representaciones visuales de la frecuencia, la varianza y la correlación.
-* **Por qué importa:** Cuando graficas la pérdida (*loss*) de tu modelo de entrenamiento, estás analizando estadísticamente si tu modelo está convergiendo (reduciendo el error) o si está estancado.
-
-### 3. Scikit-Learn: La inferencia y el aprendizaje supervisado
-
-Aquí la estadística se convierte en **aprendizaje estadístico**.
-
-* **El concepto:** Modelos como la Regresión Lineal o los algoritmos de clasificación (como Naive Bayes que vimos) son, en esencia, métodos estadísticos para encontrar patrones en los datos.
-* **Por qué importa:** Cuando entrenas un modelo en Scikit-Learn, estás calculando la probabilidad de que un punto de datos pertenezca a una categoría específica, minimizando la función de error (que es un cálculo estadístico).
-
-### 4. TensorFlow: La optimización basada en probabilidades
-
-TensorFlow lleva la estadística a un nivel de complejidad superior con el **cálculo estocástico**.
-
-* **El concepto:** El entrenamiento de una red neuronal es básicamente un proceso de optimización iterativa. El uso de "Gradiente Descendente Estocástico" (SGD) utiliza el muestreo aleatorio para aproximar el valor óptimo de los parámetros del modelo.
-* **Por qué importa:** En tu bucle de entrenamiento, estás intentando minimizar una métrica (MSE) que es puramente estadística. Los pesos de tu modelo se ajustan basándose en la probabilidad de error del lote (*batch*) procesado.
-
----
-
-### ¿Cómo se conectan todas estas piezas en tu proyecto?
-
-Si lo vemos como un flujo de trabajo para ** **, la estadística es el hilo conductor:
-
-1. **Pandas:** Limpia y resume los datos usando estadística descriptiva.
-2. **Matplotlib:** Valida gráficamente que no haya anomalías estadísticas (*outliers*) que dañen tu modelo.
-3. **Scikit-Learn/TensorFlow:** Utilizan modelos probabilísticos para hacer predicciones basadas en la distribución de esos datos.
-
-**En resumen:**
-La estadística es el "código fuente" de la inteligencia artificial. Mientras que Python es el vehículo (la sintaxis y la estructura), la estadística es el combustible. Sin la capacidad de medir, analizar distribuciones y calcular probabilidades, ninguna de estas librerías podría "aprender" de la información, ya que el aprendizaje automático no es más que **estadística aplicada a gran escala**.
-
-
-Las estadísticas no son solo una herramienta "extra" en el ecosistema de Python; son el **lenguaje base** sobre el cual se construyen todas las librerías que hemos estado estudiando (TensorFlow, Scikit-Learn, Pandas). Sin la estadística, estas librerías serían simplemente calculadoras glorificadas.
-
-Aquí te explico cómo la estadística es el motor de cada una:
-
-### 1. Pandas: La estadística descriptiva como cimiento
-
-Pandas nació para manipular datos, pero su verdadera utilidad surge de la **estadística descriptiva**.
-
-* **El concepto:** Cuando ejecutas `df.describe()`, estás aplicando automáticamente medidas de tendencia central (media, mediana), dispersión (desviación estándar) y percentiles.
-* **Por qué importa:** En ** **, antes de cualquier modelo, usas Pandas para entender la distribución de tus datos (ej. ¿cuántos granos rotos hay en promedio?). Sin estadística, estarías trabajando a ciegas.
-
-### 2. Matplotlib/Seaborn: Visualización de distribuciones
-
-La visualización no es solo "hacer dibujos", es **comunicar hallazgos estadísticos**.
-
-* **El concepto:** Los histogramas, diagramas de caja (*boxplots*) y gráficos de dispersión que generas son representaciones visuales de la frecuencia, la varianza y la correlación.
-* **Por qué importa:** Cuando graficas la pérdida (*loss*) de tu modelo de entrenamiento, estás analizando estadísticamente si tu modelo está convergiendo (reduciendo el error) o si está estancado.
-
-### 3. Scikit-Learn: La inferencia y el aprendizaje supervisado
-
-Aquí la estadística se convierte en **aprendizaje estadístico**.
-
-* **El concepto:** Modelos como la Regresión Lineal o los algoritmos de clasificación (como Naive Bayes que vimos) son, en esencia, métodos estadísticos para encontrar patrones en los datos.
-* **Por qué importa:** Cuando entrenas un modelo en Scikit-Learn, estás calculando la probabilidad de que un punto de datos pertenezca a una categoría específica, minimizando la función de error (que es un cálculo estadístico).
-
-### 4. TensorFlow: La optimización basada en probabilidades
-
-TensorFlow lleva la estadística a un nivel de complejidad superior con el **cálculo estocástico**.
-
-* **El concepto:** El entrenamiento de una red neuronal es básicamente un proceso de optimización iterativa. El uso de "Gradiente Descendente Estocástico" (SGD) utiliza el muestreo aleatorio para aproximar el valor óptimo de los parámetros del modelo.
-* **Por qué importa:** En tu bucle de entrenamiento, estás intentando minimizar una métrica (MSE) que es puramente estadística. Los pesos de tu modelo se ajustan basándose en la probabilidad de error del lote (*batch*) procesado.
-
----
-
-### ¿Cómo se conectan todas estas piezas en tu proyecto?
-
-Si lo vemos como un flujo de trabajo para ** **, la estadística es el hilo conductor:
-
-1. **Pandas:** Limpia y resume los datos usando estadística descriptiva.
-2. **Matplotlib:** Valida gráficamente que no haya anomalías estadísticas (*outliers*) que dañen tu modelo.
-3. **Scikit-Learn/TensorFlow:** Utilizan modelos probabilísticos para hacer predicciones basadas en la distribución de esos datos.
-
-**En resumen:**
-La estadística es el "código fuente" de la inteligencia artificial. Mientras que Python es el vehículo (la sintaxis y la estructura), la estadística es el combustible. Sin la capacidad de medir, analizar distribuciones y calcular probabilidades, ninguna de estas librerías podría "aprender" de la información, ya que el aprendizaje automático no es más que **estadística aplicada a gran escala**.
 
 
 **************************************
@@ -271,15 +185,15 @@ Estos archivos son los que vas a usar cuando **el proyecto** sea una realidad:
 
 * El `checkpoint-3` contiene los pesos ajustados. En una aplicación real, exportarás este modelo para que una pequeña interfaz (quizás un sitio web en **Streamlit** o una **API**) reciba la reseña de un cliente, cargue estos pesos, y te devuelva instantáneamente si es positiva o negativa.
 
-### Una advertencia importante sobre tu imagen
-
-Observé una alerta roja crítica en tu captura de pantalla: **"95% de almacenamiento usado"**.
+### Una advertencia ####
 
 * **El peligro:** Los *checkpoints* de modelos de IA, especialmente los de Transformers, pueden volverse gigantescos (cientos de megabytes o varios gigabytes). Si se te llena el Drive, tu sistema fallará y no podrás guardar nada más.
 * **Consejo:** 1. Quédate solo con el último `checkpoint` (el `-3`) y borra los anteriores para liberar espacio.
 2. Si necesitas guardar muchos modelos, considera usar **Hugging Face Hub** (es gratuito para modelos públicos) en lugar de guardar todo en tu Drive personal.
 
-¡Excelente paso! Cargar tu modelo entrenado es el momento donde todo el trabajo de configuración cobra sentido. Como ya tienes el `checkpoint-3`, podemos usarlo para realizar una **inferencia** (hacer que el modelo prediga el sentimiento de un texto nuevo).
+###
+
+Cargar tu modelo entrenado es el momento donde todo el trabajo de configuración cobra sentido. Como ya tienes el `checkpoint-3`, podemos usarlo para realizar una **inferencia** (hacer que el modelo prediga el sentimiento de un texto nuevo).
 
 Aquí tienes el código para cargar tu modelo y probarlo con una reseña que yo redacté:
 
@@ -330,9 +244,9 @@ Si la IA clasifica correctamente mi reseña (que es claramente negativa), ya tie
 * Si la IA dice que es "Positivo", es que tu modelo aún necesita más datos para entender matices.
 * Si la IA dice "Negativo", ¡significa que tu modelo es muy sensible a las quejas!
 
-*******
-MODELOS A CONSIDERAR
-*******
+******************************
+**** MODELOS A CONSIDERAR ****
+******************************
 
 Este es el mapa de ruta definitivo para llevar **el proyecto** al siguiente nivel. Integrar modelos locales con capacidades de RAG y APIs generativas te permitirá crear un ecosistema empresarial robusto y privado.
 
@@ -359,6 +273,10 @@ print(response)
 
 ---
 
+*******************
+**** LANGCHAIN ****
+*******************
+
 ### 2. Creación de Chatbots con LangChain
 
 LangChain es el "pegamento" que conecta tu modelo de IA con herramientas externas (tu base de datos, PDFs, Excel).
@@ -367,7 +285,6 @@ LangChain es el "pegamento" que conecta tu modelo de IA con herramientas externa
 * **Componentes:**
 * **PromptTemplates:** Estructuran cómo le hablas a la IA.
 * **Memory:** Permite que la IA recuerde lo que se dijo hace 3 mensajes.
-
 
 
 ---
@@ -383,23 +300,67 @@ El RAG es la solución definitiva para empresas: **la IA no inventa, responde ba
 
 ---
 
-### 4. Modelo Local para Procesos Operativos
+### 4. Modelo sobre Google Colab
+***** 13 ***** 
 
-Para "el proyecto", tu prioridad es la privacidad y la baja latencia. Usar un modelo local (ej. Llama 3 o Mistral) evita que datos operativos salgan de tu red.
+### Cómo ejecutar OLLAMA en Google Colab
 
-* **Implementación:** Utiliza **Ollama** o **vLLM** para servir el modelo localmente.
-* **Integración:** Una vez levantado el servidor local, LangChain lo trata igual que si fuera la API de OpenAI:
+Debes instalar la dependencia `zstd` en el entorno de Colab antes de intentar instalar Ollama. Sigue estos pasos exactos en una nueva celda:
 
-```python
-from langchain_community.llms import Ollama
-llm = Ollama(model="llama3")
-print(llm.invoke("¿Cuál es el procedimiento de inspección de grano?"))
+1. **Instalar `zstd`:**
+```bash
+!apt-get update && apt-get install -y zstd
 
 ```
 
+
+2. **Reinstalar Ollama:**
+Ahora que tienes `zstd`, el script de instalación debería funcionar correctamente:
+```bash
+!curl -fsSL https://ollama.com/install.sh | sh
+
+```
+
+
+3. **Verificación y arranque:**
+Después de que la instalación sea exitosa, puedes intentar arrancar el servidor nuevamente:
+```python
+import subprocess
+import time
+
+# Iniciar el servidor
+process = subprocess.Popen(["ollama", "serve"])
+time.sleep(5)  # Esperar a que el servidor inicialice
+
+```
+
+### Consideración sobre el entorno
+
+Google Colab es un entorno de ejecución temporal. Cuando instalas software de sistema (como Ollama o `zstd`) mediante `!apt-get`, estos solo persisten mientras tu sesión de Colab esté activa. Si cierras la sesión y regresas más tarde, deberás ejecutar estos comandos de instalación nuevamente.
+
+### Una alternativa más sencilla para tu proyecto
+
+Dado que estás trabajando en Colab y estos entornos pueden ser complejos para gestionar servidores locales (como Ollama), si el objetivo es probar **Mistral** o **Llama 3** para **el proyecto**, puedes utilizar la librería `transformers` para cargar modelos directamente sin necesidad de instalar servidores externos de Ollama:
+
+
+****** 12 ***** ej12_entrenamiento_sobre_texto
+```python
+from transformers import pipeline
+
+# Cargar un modelo directamente desde Hugging Face
+generator = pipeline("text-generation", model="mistralai/Mistral-7B-v0.1")
+prompt = "¿Cuál es el procedimiento de inspección de grano de arroz?"
+response = generator(prompt, max_length=100)
+print(response)
+
+```
+
+****
+Este método es mucho más directo en Colab, ya que la librería `transformers` maneja la descarga y ejecución del modelo automáticamente. 
+
 ---
 
-### 5. Despliegue (Model-as-a-Service)
+### 5. Despliegue (Model-as-a-Service) **** IMPORTANTE ****
 
 Para poner esto en producción, no basta con un notebook de Colab. Necesitas un servicio escalable:
 
@@ -417,65 +378,188 @@ Para aterrizar esto en tu proyecto, te propongo el siguiente orden de ejecución
 2. **Prototipo RAG:** Creamos un script que cargue esos documentos en ChromaDB y permita consultarlos usando un modelo local.
 3. **Interfaz:** Montamos una app sencilla con **Streamlit** donde tus operarios puedan subir un reporte y obtener un resumen de riesgos o alertas de calidad.
 
-*****
+**********************
+**** EL PROYECTO *****
+**********************
 
-Para comenzar con el código base de **Interaxia**, lo más efectivo es implementar un sistema **RAG (Retrieval Augmented Generation)**. Esto permitirá que tu IA no solo "sepa" de arroz, sino que consulte tus documentos operativos específicos para responder.
+Para comenzar con el código base de **el proyecto**, lo más efectivo es implementar un sistema **RAG (Retrieval Augmented Generation: GENERACIÓN AUMENTADA POR RECUPERACIÓN)**. 
+Esto permitirá que tu IA no solo "sepa" de arroz, sino que consulte tus documentos operativos específicos para responder.
 
 Usaremos **LangChain** como orquestador y **ChromaDB** como base de datos vectorial local.
 
-### Paso 1: Instalación de librerías necesarias
+*********
+**** ****
+*********
 
-Ejecuta esto en tu celda de Colab para preparar el entorno:
+
+## 1. Instalación de librerías Python
+
+```python
+!pip install -q langchain langchain-community langchain-huggingface langchain-chroma chromadb sentence-transformers pypdf
+```
+Instala las librerías necesarias para construir el sistema RAG: `langchain` (el núcleo), `langchain-community` (integraciones de la comunidad, como `PyPDFLoader`), `langchain-huggingface` y `langchain-chroma` (integraciones modernas separadas del núcleo), `chromadb` (la base de datos vectorial), `sentence-transformers` (modelos de embeddings) y `pypdf` (para leer archivos PDF). El flag `-q` ("quiet") reduce el texto de salida en pantalla.
+
+## 2. Instalación de `zstd`
 
 ```bash
-!pip install langchain langchain-community langchain-openai chromadb sentence-transformers pypdf
-
+!sudo apt-get update -qq
+!sudo apt-get install -y zstd
 ```
+Actualiza la lista de paquetes del sistema operativo (Ubuntu, que es lo que corre por debajo en Colab) e instala `zstd`, una herramienta de compresión/descompresión que el instalador de Ollama necesita internamente. Sin esto, la instalación de Ollama falla.
 
-### Paso 2: Código base para RAG (El "Cerebro" de Interaxia)
+## 3. Instalación de Ollama
 
-Este script toma un archivo PDF (tus manuales de calidad), lo divide en partes pequeñas y permite que la IA haga consultas sobre ellos.
+```bash
+!curl -fsSL https://ollama.com/install.sh | sh
+```
+Descarga el script oficial de instalación de Ollama y lo ejecuta directamente (`| sh`). Esto instala el motor de Ollama en la VM de Colab, permitiendo correr modelos de lenguaje (LLMs) de forma local, sin depender de una API externa como OpenAI.
+
+## 4. Arranque del servicio Ollama en segundo plano
+
+```python
+import subprocess
+import time
+
+proceso_ollama = subprocess.Popen(["ollama", "serve"])
+time.sleep(5)
+print("Ollama corriendo en segundo plano.")
+```
+Ollama funciona como un servicio (servidor) que debe estar corriendo para recibir consultas. `subprocess.Popen` lo lanza en **segundo plano** (sin bloquear la celda), y `time.sleep(5)` da un margen de 5 segundos para que el servicio termine de levantar antes de usarlo.
+
+## 5. Descarga del modelo LLM
+
+```bash
+!ollama pull llama3
+```
+Descarga los pesos del modelo `llama3` (varios GB) al almacenamiento local de la VM, para poder usarlo sin conexión a internet una vez descargado.
+
+## 6. Carga del documento PDF
 
 ```python
 from langchain_community.document_loaders import PyPDFLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import Chroma
-from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain_community.llms import Ollama
-from langchain.chains import RetrievalQA
+from google.colab import drive
 
-# 1. Cargar tu manual de calidad
-loader = PyPDFLoader("/content/drive/MyDrive/data/manual_calidad_arroz.pdf")
+drive.mount('/content/drive')
+
+ruta_pdf = "/content/drive/MyDrive/data/manual_calidad_arroz.pdf"
+loader = PyPDFLoader(ruta_pdf)
 documentos = loader.load()
 
-# 2. Dividir el texto en fragmentos (chunks)
+print(f"Documento cargado. Total de páginas: {len(documentos)}")
+```
+`drive.mount()` conecta tu Google Drive al entorno de Colab para acceder a archivos guardados ahí. `PyPDFLoader` lee el PDF indicado y `.load()` lo convierte en una lista de objetos `Document` de LangChain (uno por página), cada uno con su texto y metadatos (como el número de página).
+
+## 7. División en fragmentos (chunking)
+
+```python
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
 textos = text_splitter.split_documents(documentos)
 
-# 3. Crear Embeddings locales (Transformar texto a vectores)
-embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
+print(f"Total de fragmentos generados: {len(textos)}")
+```
+Los LLMs y los sistemas de búsqueda vectorial funcionan mejor con fragmentos de texto pequeños en vez de páginas completas. `RecursiveCharacterTextSplitter` divide el documento en trozos de máximo **500 caracteres**, con un **solapamiento de 50 caracteres** entre fragmentos consecutivos (para no cortar ideas a la mitad y mantener contexto entre trozos).
 
-# 4. Guardar en Base de Datos Vectorial
+## 8. Creación de embeddings y base de datos vectorial
+
+```python
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_chroma import Chroma
+
+embeddings = HuggingFaceEmbeddings(
+    model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+)
+
 db = Chroma.from_documents(textos, embeddings)
 
-# 5. Configurar el modelo local (Ollama - asumiremos que está corriendo)
-llm = Ollama(model="llama3")
-
-# 6. Crear la cadena de respuesta
-qa_chain = RetrievalQA.from_chain_type(llm, retriever=db.as_retriever())
-
-# 7. Consulta de prueba
-pregunta = "¿Cuáles son los estándares de humedad aceptados para el lote de arroz?"
-respuesta = qa_chain.invoke(pregunta)
-print(respuesta)
-
+print("Base de datos vectorial creada correctamente.")
 ```
+`HuggingFaceEmbeddings` carga un modelo (que corre localmente, sin API) capaz de convertir texto en vectores numéricos que representan su significado semántico. El modelo elegido es **multilingüe**, por eso funciona bien con texto en español. `Chroma.from_documents()` toma cada fragmento de texto, lo convierte en un vector usando ese modelo, y lo guarda en una base de datos vectorial (Chroma) que permite luego buscar los fragmentos más similares a una pregunta dada.
 
-### ¿Por qué este es el código ideal para Interaxia?
+## 9. Verificación de versión
 
-1. **Privacidad Total:** Al usar `HuggingFaceEmbeddings` y `Ollama`, todo el procesamiento ocurre dentro de tu entorno (o servidor local). Tus manuales operativos no se envían a servidores externos de OpenAI.
-2. **Precisión (Grounding):** La IA ya no alucina. Si el manual dice que el arroz debe tener 12% de humedad, la IA buscará ese número exacto en tu PDF antes de responder.
-3. **Escalabilidad:** Si mañana tienes 50 manuales más, solo los agregas a la carpeta, ejecutas el `Chroma.from_documents` y listo, la IA ya conoce todos tus procesos.
+```bash
+!pip show langchain
+```
+Muestra información del paquete `langchain` instalado (versión, ubicación, dependencias). Esto lo usamos antes para diagnosticar el error de `RetrievalQA` — confirmó que tenías la versión 1.3.11, que eliminó ese módulo legacy.
+
+## 10. Construcción de la cadena RAG (el "cerebro")
+
+```python
+from langchain_ollama import OllamaLLM
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import RunnablePassthrough
+
+llm = OllamaLLM(model="llama3")
+retriever = db.as_retriever()
+
+prompt = ChatPromptTemplate.from_template("""
+Responde la pregunta basándote únicamente en el siguiente contexto.
+Si no encuentras la respuesta en el contexto, dilo claramente.
+
+Contexto:
+{context}
+
+Pregunta: {question}
+""")
+
+def formatear_documentos(docs):
+    return "\n\n".join(doc.page_content for doc in docs)
+
+qa_chain = (
+    {"context": retriever | formatear_documentos, "question": RunnablePassthrough()}
+    | prompt
+    | llm
+    | StrOutputParser()
+)
+
+print("Cadena RAG lista para consultas.")
+```
+Esta es la parte central del sistema RAG, construida con **LCEL** (LangChain Expression Language), la sintaxis moderna de LangChain 1.x:
+
+- `OllamaLLM(model="llama3")`: conecta con el modelo Llama 3 corriendo localmente vía Ollama.
+- `retriever = db.as_retriever()`: convierte la base de datos vectorial en un "buscador" que, dada una pregunta, devuelve los fragmentos de texto más relevantes.
+- `prompt`: la plantilla de instrucciones que se le da al LLM, con dos variables (`{context}` = fragmentos recuperados, `{question}` = la pregunta del usuario). Le indica explícitamente que responda solo con base en el contexto, evitando que "invente" información (alucinaciones).
+- `formatear_documentos()`: une los fragmentos recuperados (que son objetos, no texto plano) en un solo bloque de texto separado por saltos de línea.
+- El bloque `qa_chain = (...)`: es la cadena completa, unida con el operador `|` (pipe), que define el flujo de datos paso a paso:
+  1. Recibe la pregunta → la pasa al `retriever` (que busca fragmentos relevantes) y también la pasa sin cambios (`RunnablePassthrough`) como `question`.
+  2. Ambos resultados (`context` y `question`) llenan la plantilla del `prompt`.
+  3. El prompt final se envía al `llm` (Llama 3).
+  4. `StrOutputParser()` extrae solo el texto de la respuesta del modelo (sin metadatos adicionales).
+
+## ⚠️ Nota: instalación duplicada y mal ubicada
+
+```bash
+!pip install -q langchain langchain-community langchain-huggingface langchain-chroma langchain-ollama chromadb sentence-transformers pypdf
+```
+Esta línea aparece **después** de que ya se usó `langchain_ollama` en el bloque anterior — está fuera de lugar. Debería ir en la instalación inicial (bloque 1), no aquí. Además, si esta es la primera vez que se instala `langchain-ollama` en la sesión, el `import OllamaLLM` de arriba habría fallado antes de llegar a esta línea. Te recomiendo moverla al inicio del notebook, en la Celda 1, y eliminar esta repetición.
+
+## 11. Consulta de prueba
+
+```python
+pregunta = "¿Cuáles son los estándares de humedad aceptados para el lote de arroz?"
+
+respuesta = qa_chain.invoke(pregunta)
+
+print("PREGUNTA:", pregunta)
+print("\nRESPUESTA:", respuesta)
+
+docs_relevantes = retriever.invoke(pregunta)
+print("\n--- Fuentes utilizadas ---")
+for i, doc in enumerate(docs_relevantes, 1):
+    pagina = doc.metadata.get("page", "N/A")
+    print(f"{i}. Página {pagina}: {doc.page_content[:150]}...")
+```
+Define una pregunta de prueba sobre el manual de calidad del arroz, la envía a la cadena RAG con `.invoke()` (que ejecuta todo el flujo: buscar → armar prompt → generar respuesta → extraer texto), e imprime el resultado. Luego, de forma independiente, vuelve a usar el `retriever` para mostrar **qué fragmentos del PDF** (y de qué página) fueron los que alimentaron la respuesta — útil para verificar que el modelo no esté "inventando" información fuera del documento.
+
+
+
+*********
+**** ****
+*********
+
 
 ### Próximos pasos para completar la base:
 
@@ -483,6 +567,191 @@ Para que esto sea una herramienta operativa, el siguiente nivel es:
 
 * **Interfaz de usuario:** Usar `Streamlit` para que puedas subir los documentos y chatear con ellos desde un navegador web, en lugar de hacerlo desde el código.
 * **Persistencia:** Guardar la base de datos `db` en disco para no tener que procesar los PDFs cada vez que inicies el programa.
+
+
+*******************************************************
+**** DIFERENCIA ENTRE CHECKPOINT Y BBDD VECTORIAL *****
+*******************************************************
+
+### 1. ¿Qué son los `checkpoint`? (Los archivos que tienes)
+
+Son **"instantáneas" (snapshots) del estado del entrenamiento de tu modelo**.
+
+* 
+**Contenido:** Contienen los pesos (parámetros) de la red neuronal, la configuración del modelo, los optimizadores y el estado de los *tokens*.
+
+
+* 
+**Propósito:** Permiten que el modelo "recuerde" lo que aprendió durante el *fine-tuning*. Son archivos específicos para el framework `transformers` de Hugging Face.
+
+
+* 
+**Uso:** Sirven para continuar entrenando desde donde te quedaste o para cargar el modelo final para realizar predicciones (inferencia).
+
+
+
+### 2. ¿Qué es una base de datos vectorizada?
+
+Es algo completamente distinto que se utiliza en arquitecturas **RAG (Retrieval Augmented Generation)**.
+
+* 
+**Contenido:** Almacena **embeddings** (vectores numéricos que representan el significado semántico de tus documentos).
+
+
+* 
+**Propósito:** Permitir búsquedas rápidas por similitud semántica (ej. buscar "humedad excesiva" y encontrar párrafos que hablen de "exceso de agua en grano").
+
+
+* 
+**Ejemplos:** ChromaDB, FAISS, Pinecone.
+
+
+
+### Comparación rápida para tu proyecto:
+
+| Característica | Checkpoint (Lo que tienes) | Base de Datos Vectorizada (RAG) |
+| --- | --- | --- |
+| **¿Qué guarda?** | Pesos y lógica del modelo ("el cerebro"). | Representación numérica de tus documentos. |
+| **Función principal** | Ejecutar predicciones o seguir entrenando. | Buscar y recuperar información relevante. |
+| **Tecnología** | Hugging Face `transformers`. | ChromaDB, LangChain, FAISS. |
+
+### Resumen para tu flujo de trabajo:
+
+En tu proyecto actual, **los checkpoints son el resultado de tu entrenamiento**. Si quieres implementar el sistema de búsqueda sobre tus manuales de calidad, **tendrás que crear una base de datos vectorizada aparte** utilizando las herramientas que discutimos anteriormente (como LangChain y ChromaDB).
+
+El modelo que cargas desde el `checkpoint-3` es el que *leerá* la información que tú *recuperes* desde la base de datos vectorizada. Son complementarios, no son lo mismo.
+
+**************************
+**** OLLAMA Y MISTRAL ****
+**************************
+
+Para entender la diferencia, es fundamental aclarar que **estás comparando dos cosas que pertenecen a categorías distintas** dentro del mundo de la Inteligencia Artificial. Es como comparar un "coche" con un "motor".
+
+Aquí tienes la diferencia clave:
+
+### 1. Mistral es el "Modelo" (el Cerebro)
+
+**Mistral** es un **modelo de lenguaje (LLM)** desarrollado por la empresa Mistral AI.
+
+* **¿Qué es?:** Es el conjunto de archivos, pesos (parámetros) y lógica matemática que ha sido entrenado para entender y generar lenguaje humano.
+* **Función:** Es la "inteligencia" en sí. Si le haces una pregunta, Mistral es quien procesa la información y formula la respuesta basándose en su entrenamiento.
+* **Analogía:** Si la IA fuera un estudiante, **Mistral sería el estudiante** mismo, con todo su conocimiento acumulado.
+
+### 2. Ollama es la "Plataforma" (el Motor/Vehículo)
+
+**Ollama** es una herramienta de software diseñada para **ejecutar modelos de lenguaje localmente** en tu propia computadora o servidor.
+
+* **¿Qué es?:** Es un gestor de modelos. Se encarga de descargar, cargar en memoria y hacer funcionar modelos como Mistral, Llama 3, Gemma, etc.
+* **Función:** Proporciona la infraestructura necesaria para que el "estudiante" (el modelo) pueda trabajar en tu máquina. Sin Ollama (o herramientas similares como vLLM o LM Studio), no tendrías una interfaz sencilla para ejecutar esos modelos localmente.
+* **Analogía:** Si la IA fuera un estudiante, **Ollama sería el aula y el escritorio** donde el estudiante se sienta a trabajar y escribir sus respuestas.
+
+---
+
+### Resumen comparativo
+
+| Característica | Mistral | Ollama |
+| --- | --- | --- |
+| **Categoría** | Modelo de IA (LLM) | Herramienta de ejecución (Runtime/Servidor) |
+| **Propósito** | Razonar, escribir, analizar texto | Facilitar que el modelo corra en tu equipo |
+| **¿Qué hace?** | Genera contenido inteligente | Gestiona recursos (memoria, CPU/GPU) |
+| **Dependencia** | Necesita una plataforma para correr | Necesita un modelo para funcionar |
+
+### ¿Cómo interactúan en tu proyecto?
+
+En tu flujo de trabajo, la relación es esta:
+
+1. **Ollama** recibe tu instrucción (ej. "Analiza este grano").
+2. **Ollama** busca el modelo **Mistral** que descargaste en tu equipo.
+3. **Mistral** procesa la información y genera la respuesta.
+4. 
+**Ollama** te devuelve esa respuesta de vuelta a tu consola o interfaz (como Streamlit).
+
+**En conclusión:** No eliges entre Ollama o Mistral; los usas juntos. Utilizas **Ollama** como el "contenedor" para poner a trabajar al modelo **Mistral** en tu propia infraestructura, asegurando así la privacidad y el control de tus datos operativos.
+
+
+
+**********************
+******* OLLAMA *******
+**********************
+Para usar **Ollama** de forma local, el flujo consiste en tener el servidor ejecutándose y luego usar una librería (como LangChain) para enviar consultas y recibir respuestas.
+
+A continuación, te doy un ejemplo completo y práctico. Asumiremos que quieres un script que actúe como un **asistente técnico** para tu proyecto.
+
+### Requisitos previos
+
+1. Tener **Ollama** instalado en tu computadora (descárgalo en [ollama.com](https://ollama.com)).
+2. Abrir una terminal y descargar el modelo base: `ollama pull llama3`.
+
+### Código en Python
+
+Este script es muy eficiente porque no envía tus datos a la nube; todo ocurre en tu procesador local.
+
+```python
+# 1. Instalamos la librería necesaria si no la tienes:
+# pip install langchain-ollama
+
+from langchain_ollama import OllamaLLM
+
+# 2. Inicializamos el modelo local
+# 'llama3' es el modelo que bajaste previamente con 'ollama pull llama3'
+llm = OllamaLLM(model="llama3")
+
+# 3. Definimos una función para consultar al asistente
+def consultar_asistente(pregunta):
+    print(f"Pregunta: {pregunta}")
+    # .invoke() envía el prompt al modelo local y recibe la respuesta
+    respuesta = llm.invoke(pregunta)
+    print(f"Respuesta: {respuesta}\n")
+
+# 4. Ejemplo de uso
+if __name__ == "__main__":
+    pregunta_usuario = "¿Cuáles son los tres factores críticos al inspeccionar granos?"
+    consultar_asistente(pregunta_usuario)
+
+```
+
+### ¿Qué hace este ejemplo paso a paso?
+
+1. **`OllamaLLM(model="llama3")`**: Esto se conecta directamente con el servidor de Ollama que está corriendo en tu máquina (normalmente en `localhost:11434`).
+2. **Privacidad absoluta**: Cuando ejecutas `llm.invoke()`, el texto de tu pregunta viaja de tu script de Python a Ollama, y Ollama lo pasa al modelo (Llama 3). **Nada sale a internet**, lo cual es vital si estás procesando datos técnicos o confidenciales de tu proyecto.
+3. **Escalabilidad local**: Si mañana decides que Llama 3 es muy lento o pesado, simplemente cambias el modelo en la línea 2 (ej. a `mistral` o `llama3.2:1b`) y todo tu código seguirá funcionando igual.
+
+### Consejos para "El Proyecto"
+
+* **Encadenamiento:** Si quieres que este asistente sea un experto, no solo le preguntes cosas generales. Puedes usar **System Prompts** para darle un rol:
+```python
+llm = OllamaLLM(model="llama3", system="Eres un ingeniero experto en control de calidad arrocera.")
+
+```
+
+* **Baja latencia:** Si notas que la respuesta es lenta, asegúrate de no tener otros programas pesados abiertos, ya que los modelos locales compiten por la memoria RAM de tu equipo.
+
+**Ollama** es una herramienta de software diseñada para simplificar la **ejecución, gestión y despliegue de modelos de lenguaje (LLMs) de forma local** en tu propia computadora o servidor.
+
+En lugar de depender de servicios en la nube como OpenAI (donde tus datos salen de tu entorno), Ollama permite que el modelo "viva" y trabaje directamente en tu hardware.
+
+### ¿Qué hace exactamente Ollama?
+
+* **Gestión de modelos:** Descarga y mantiene actualizados los pesos de diversos modelos de IA de código abierto (como Llama 3, Mistral, Gemma, Phi-3, entre otros).
+* **Servidor de inferencia:** Crea un servidor local (usualmente en `localhost:11434`) que está siempre listo para recibir peticiones y procesar texto.
+* **Optimización de recursos:** Se encarga de cargar el modelo en la memoria (RAM/VRAM) de tu equipo de manera eficiente, optimizando el uso de la CPU o la GPU según lo que tengas disponible.
+
+### Características clave para tu proyecto
+
+* **Privacidad:** Es ideal para el manejo de datos técnicos de calidad o información confidencial de tu proyecto, ya que ninguna información abandona nunca tu red local.
+* **Facilidad de uso:** Elimina la complejidad de configurar entornos complicados. Con un solo comando en la terminal, como `ollama run llama3`, el sistema descarga el modelo y te permite chatear con él de inmediato.
+* **Integración:** Es altamente compatible con herramientas como **LangChain**, lo que permite construir sistemas RAG (como el que estás diseñando para tus manuales de calidad) sin tener que pagar APIs costosas por cada consulta.
+
+### Resumen: ¿Ollama vs. Otros?
+
+| Característica | Ollama | APIs en la Nube (OpenAI, Anthropic) |
+| --- | --- | --- |
+| **Privacidad** | Total (Local) | Limitada (Datos a la nube) |
+| **Costo** | Gratuito (Solo gasto energético) | Pago por uso (Tokens) |
+| **Dependencia** | Funciona sin internet | Requiere conexión constante |
+| **Flexibilidad** | Alta (puedes cambiar de modelo) | Baja (limitado al modelo del proveedor) |
+
+En resumen: **Ollama es el motor que permite ejecutar modelos de IA de clase mundial en tu propia infraestructura**, dándote total control sobre tus procesos y manteniendo tus documentos operativos seguros y privados dentro de tu entorno. 
 
 
 
