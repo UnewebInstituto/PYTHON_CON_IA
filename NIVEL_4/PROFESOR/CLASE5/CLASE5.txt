@@ -1,0 +1,239 @@
+**Ollama** es una herramienta de software diseñada para simplificar la **ejecución, gestión y despliegue de modelos de lenguaje (LLMs) de forma local** en tu propia computadora o servidor.
+
+En lugar de depender de servicios en la nube como OpenAI (donde tus datos salen de tu entorno), Ollama permite que el modelo "viva" y trabaje directamente en tu hardware.
+
+### ¿Qué hace exactamente Ollama?
+
+* **Gestión de modelos:** Descarga y mantiene actualizados los pesos de diversos modelos de IA de código abierto (como Llama 3, Mistral, Gemma, Phi-3, entre otros).
+* **Servidor de inferencia:** Crea un servidor local (usualmente en `localhost:11434`) que está siempre listo para recibir peticiones y procesar texto.
+* **Optimización de recursos:** Se encarga de cargar el modelo en la memoria (RAM/VRAM) de tu equipo de manera eficiente, optimizando el uso de la CPU o la GPU según lo que tengas disponible.
+
+### Características clave para tu proyecto
+
+* **Privacidad:** Es ideal para el manejo de datos técnicos de calidad o información confidencial de tu proyecto, ya que ninguna información abandona nunca tu red local.
+* **Facilidad de uso:** Elimina la complejidad de configurar entornos complicados. Con un solo comando en la terminal, como `ollama run llama3`, el sistema descarga el modelo y te permite chatear con él de inmediato.
+* **Integración:** Es altamente compatible con herramientas como **LangChain**, lo que permite construir sistemas RAG (como el que estás diseñando para tus manuales de calidad) sin tener que pagar APIs costosas por cada consulta.
+
+### Resumen: ¿Ollama vs. Otros?
+
+| Característica | Ollama | APIs en la Nube (OpenAI, Anthropic) |
+| --- | --- | --- |
+| **Privacidad** | Total (Local) | Limitada (Datos a la nube) |
+| **Costo** | Gratuito (Solo gasto energético) | Pago por uso (Tokens) |
+| **Dependencia** | Funciona sin internet | Requiere conexión constante |
+| **Flexibilidad** | Alta (puedes cambiar de modelo) | Baja (limitado al modelo del proveedor) |
+
+En resumen: **Ollama es el motor que permite ejecutar modelos de IA de clase mundial en tu propia infraestructura**, dándote total control sobre tus procesos y manteniendo tus documentos operativos seguros y privados dentro de tu entorno. 
+
+Para verificar si tu equipo (ya sea tu computadora local o la instancia de Google Colab) puede ejecutar modelos como **Mistral-7B** o **Llama 3 (8B)**, el factor determinante es la **Memoria RAM** y la **VRAM (Memoria de Video)**.
+
+Aquí te explico cómo comprobarlo y qué valores necesitas:
+
+### 1. Requisitos Técnicos Ideales
+
+Para correr modelos de 7-8 billones de parámetros (7B/8B) de forma fluida:
+
+* **Memoria RAM (Sistema):** Mínimo **16 GB**. Si tienes 8 GB, el sistema se verá obligado a usar "swap" (memoria en disco), lo que hace que la respuesta sea extremadamente lenta.
+* **VRAM (GPU NVIDIA):** Mínimo **8 GB**. Si tienes una tarjeta gráfica NVIDIA, Ollama la detectará automáticamente. Con 8 GB de VRAM, el modelo cabe completamente en la tarjeta y la respuesta es casi instantánea.
+* **Espacio en Disco:** Al menos **5 GB a 10 GB** libres para almacenar los archivos del modelo.
+
+### 2. Cómo verificar tu capacidad
+
+#### En Google Colab (nube):
+
+Colab suele asignar GPUs con 15GB de VRAM (como la T4), lo cual es suficiente para modelos de 7B o 8B. Si recibes el error "Out of Memory", es porque el entorno de ejecución está cargando demasiadas librerías a la vez.
+
+* **Para ver qué GPU tienes:** Ejecuta esta celda en Colab:
+```bash
+!nvidia-smi
+
+```
+
+
+*Busca el campo "Memory-Usage". Si aparece lleno incluso sin ejecutar nada, ve a `Entorno de ejecución > Desconectar y eliminar entorno`.*
+
+#### En tu Computadora (Local):
+
+* **Windows:** Presiona `Ctrl + Shift + Esc` y ve a la pestaña **Rendimiento**. Mira la "Memoria" (RAM) y la "GPU".
+* **Mac (Apple Silicon M1/M2/M3):** Ollama es increíblemente eficiente aquí. La memoria es "Unificada", así que si tienes 16 GB de RAM, Ollama tomará gran parte para el modelo. Apple Silicon es actualmente la mejor plataforma para correr estos modelos localmente.
+
+### 3. Estrategias si tu equipo está "justo"
+
+Si notas que tu equipo no llega a los 16 GB de RAM o tienes poca VRAM, no te preocupes, puedes usar **Cuantización**:
+
+1. **¿Qué es?:** Es comprimir el modelo. Un modelo estándar (FP16) pesa unos 14 GB. Un modelo cuantizado (Q4_K_M) pesa unos 4-5 GB y mantiene el 95-98% de la inteligencia.
+2. **Cómo usarlo en Ollama:** Ollama hace esto automáticamente por ti. Cuando descargas un modelo, este ya viene optimizado.
+3. **Modelos "Ligeros" recomendados:** Si Mistral o Llama 3 te van lentos, prueba estos en tu terminal:
+* `ollama run llama3.2:3b` (Muy rápido, excelente para laptops estándar).
+* `ollama run phi3` (El modelo más eficiente de Microsoft para equipos con pocos recursos).
+
+
+
+### ¿Cómo hacer una prueba real ahora?
+
+Para saber si tu configuración actual de software y hardware está bien, ejecuta este comando en tu terminal (si es local) o en una celda de código (si es Colab):
+
+```bash
+# Intenta correr un modelo pequeño primero para ver si tu configuración funciona
+!ollama run llama3.2:3b "Hola, ¿estás funcionando correctamente?"
+
+```
+
+Si este comando responde, **tu equipo cumple perfectamente** para empezar. Si el comando falla con un error de memoria o conexión, entonces estamos ante una limitación de hardware que deberemos ajustar mediante la selección de un modelo más comprimido.
+
+Llevar un modelo de IA a producción como **Model-as-a-Service (MaaS)** significa convertir un modelo (o un pipeline como el RAG que estás construyendo) en un servicio disponible, estable y escalable que otras aplicaciones o usuarios puedan consumir mediante una API, sin preocuparse por la infraestructura subyacente. Te explico los componentes clave:
+
+## 1. Empaquetado del modelo (Serving)
+
+El primer paso es exponer el modelo detrás de un endpoint HTTP/REST (o gRPC). Aquí es donde tu prototipo de Colab se transforma en un servicio real:
+
+- **Framework de API**: FastAPI o Flask son los más comunes en Python para envolver tu pipeline RAG
+- **Motores de inferencia especializados**: para LLMs, en vez de Ollama en modo desarrollo, en producción se suele usar **vLLM**, **TGI (Text Generation Inference)** de HuggingFace, o **TensorRT-LLM**, que optimizan throughput y latencia mediante batching dinámico, paged attention, etc.
+- **Contenerización**: Docker para empaquetar el modelo + dependencias + código de inferencia en una imagen reproducible
+
+## 2. Infraestructura y escalabilidad
+
+- **Orquestación**: Kubernetes para gestionar múltiples instancias, autoescalado según demanda
+- **Gestión de GPU**: en producción, los LLMs suelen requerir GPUs dedicadas; hay que decidir entre instancias propias, servicios gestionados (AWS SageMaker, Vertex AI, Azure ML) o proveedores especializados (Modal, Replicate, Together AI, Fireworks)
+- **Balanceo de carga**: distribuir peticiones entre réplicas del modelo
+
+## 3. Gestión del ciclo de vida del modelo
+
+- **Versionado**: control de qué versión del modelo/pipeline está activa (útil si cambias de Llama 3 a otra versión, o ajustas tu estrategia de chunking)
+- **Registro de modelos**: herramientas como MLflow o Weights & Biases para trackear experimentos y versiones
+- **CI/CD para ML (MLOps)**: pipelines automatizados de testing y despliegue cuando se actualiza el modelo o el código
+
+## 4. Observabilidad y monitoreo
+
+- **Latencia y throughput**: cuántas peticiones por segundo soporta, tiempo de respuesta
+- **Calidad de las respuestas**: en un RAG, monitorear métricas como relevancia de los documentos recuperados, tasa de alucinaciones
+- **Logs y trazabilidad**: qué preguntas se hicieron, qué contexto se recuperó, qué respondió el modelo (importante para debugging y auditoría)
+- **Drift**: detectar si el modelo empieza a degradar su desempeño con el tiempo
+
+## 5. Seguridad y control de acceso
+
+- **Autenticación/autorización**: API keys, OAuth, rate limiting
+- **Validación de inputs**: sanitizar prompts, prevenir prompt injection
+- **Costos**: control de uso, especialmente si usas APIs de pago (OpenAI, Anthropic) en vez de modelos locales
+
+## Aplicado a tu proyecto específico
+
+Para llevar tu RAG de arroz de Colab a producción, el camino típico sería:
+
+1. Envolver tu cadena LCEL (`OllamaLLM` + `ChatPromptTemplate` + retriever de Chroma) en un endpoint FastAPI
+2. Contenerizar con Docker (incluyendo Ollama o migrando a vLLM si necesitas más throughput)
+3. Persistir tu ChromaDB en un volumen o migrar a un vector store gestionado (Pinecone, Qdrant, Weaviate) si esperas mayor escala
+4. Añadir monitoreo básico (logs de preguntas/respuestas, latencia)
+5. Desplegar en un contenedor gestionado (Cloud Run, ECS, o un servidor con GPU si el volumen lo justifica)
+
+"Pipeline" se puede traducir como **"canalización"** o **"tubería"** en español, aunque en el contexto técnico de IA/desarrollo de software, el término más usado y aceptado es **"flujo de trabajo"** o simplemente dejarlo como **"pipeline"** (es un anglicismo muy extendido en la jerga técnica en español).
+
+En tu proyecto RAG, por ejemplo, cuando decimos "pipeline" nos referimos a la **secuencia de pasos** que sigue el proceso: ingesta del PDF → división en fragmentos (chunking) → generación de embeddings → almacenamiento en ChromaDB → recuperación → generación de respuesta con el LLM.
+
+Así que dependiendo del contexto:
+- **Técnico/formal**: "flujo de procesamiento" o "cadena de procesamiento"
+- **Coloquial en desarrollo**: se deja como "pipeline" (así lo vas a ver en el 90% de la documentación y conversaciones técnicas en español)
+
+******************
+**** PROYECTO ****
+******************
+
+# Asistente RAG local (Ollama + LangChain + ChromaDB + Streamlit)
+
+Chatbot que responde preguntas basándose en tus propios documentos
+(PDF, DOCX, TXT), ejecutando el LLM completamente en local con Ollama.
+
+## Requisitos previos
+
+1. **Ollama instalado y corriendo** en tu máquina.
+   Descarga: https://ollama.com
+
+2. **Modelo descargado** (ajustado para equipos con 8 GB RAM y sin GPU dedicada):
+   ```bash
+   ollama pull phi3:mini
+   ```
+   Verifica que Ollama esté sirviendo en `http://localhost:11434` (por defecto).
+
+   > 💡 Si tu equipo tiene más RAM (16 GB+) o GPU dedicada, puedes usar
+   > un modelo más grande como `ollama pull llama3` y cambiar
+   > `OLLAMA_MODEL = "llama3"` en `app.py` para mejor calidad de respuesta.
+
+3. **Python 3.10+**
+
+## Instalación
+
+```bash
+cd rag_chatbot
+python -m venv venv
+source venv/bin/activate      # En Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+## Ejecución
+
+```bash
+streamlit run app.py
+```
+
+Se abrirá en tu navegador (normalmente `http://localhost:8501`).
+
+## Uso
+
+1. En la barra lateral, sube uno o varios documentos (PDF, DOCX o TXT).
+2. Pulsa **"Procesar documentos"**. Esto:
+   - Extrae el texto de cada archivo
+   - Lo divide en fragmentos (chunks)
+   - Genera embeddings multilingües (HuggingFace)
+   - Los indexa en ChromaDB (persistidos en la carpeta `chroma_db/`)
+3. Escribe tus preguntas en el chat. El asistente responderá basándose
+   únicamente en el contenido de los documentos subidos.
+
+## Personalización rápida
+
+Todos los parámetros clave están al inicio de `app.py`:
+
+| Variable           | Qué controla                                      |
+|--------------------|----------------------------------------------------|
+| `OLLAMA_MODEL`     | Qué modelo de Ollama usar (llama3, mistral, etc.)  |
+| `EMBEDDING_MODEL`  | Modelo de embeddings de HuggingFace                |
+| `CHUNK_SIZE`       | Tamaño de cada fragmento de texto                  |
+| `CHUNK_OVERLAP`    | Solapamiento entre fragmentos consecutivos         |
+| `TOP_K`            | Nº de fragmentos recuperados por cada pregunta     |
+
+## Notas sobre escalabilidad
+
+- Este proyecto está pensado para uso local/prototipo. Para producción,
+  considera:
+  - Migrar la lógica RAG a un endpoint **FastAPI** independiente de la UI
+  - Sustituir Ollama por **vLLM** o **TGI** si necesitas mayor throughput
+  - Usar un vector store gestionado (Qdrant, Pinecone, Weaviate) si el
+    volumen de documentos crece mucho
+  - Añadir logging de preguntas/respuestas para monitoreo y mejora continua
+
+## Recomendaciones para equipos con recursos limitados (8 GB RAM, sin GPU)
+
+Si notas respuestas lentas o el equipo se congela al usar el chatbot:
+
+- Cierra aplicaciones pesadas (navegador con muchas pestañas, editores, etc.)
+  mientras uses el chatbot — con 8 GB totales, cada GB libre cuenta.
+- Si `phi3:mini` sigue siendo lento, prueba modelos aún más ligeros:
+  ```bash
+  ollama pull gemma2:2b     # el más liviano
+  ollama pull llama3.2:3b   # alternativa similar en tamaño
+  ```
+  y cambia `OLLAMA_MODEL` en `app.py` de acuerdo al que elijas.
+- Procesa pocos documentos a la vez al inicio para validar que todo
+  funciona antes de indexar colecciones grandes.
+- El primer uso de un modelo de embeddings es más lento porque Hugging
+  Face lo descarga y lo cachea localmente; las siguientes ejecuciones
+  serán más rápidas.
+
+## Solución de problemas comunes
+
+- **Error de conexión con Ollama**: asegúrate de que el servicio esté
+  corriendo (`ollama serve` o la app de Ollama abierta).
+- **Modelo no encontrado**: ejecuta `ollama pull llama3` (o el modelo que
+  hayas configurado en `OLLAMA_MODEL`).
+- **Documentos en otros idiomas**: el modelo de embeddings usado
+  (`paraphrase-multilingual-mpnet-base-v2`) soporta múltiples idiomas,
+  incluido español.

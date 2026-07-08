@@ -14,5 +14,6 @@ o Creación de Chatbots inteligentes con LangChain.
 
 • Proyecto Final: Creación de un asistente inteligente que analice documentos y genere
 respuestas automáticas (RAG - Retrieval Augmented Generation).
+
 Modelo local de Inteligencia Artificial, entrenado para los procesos operativos de 
 la empresa.

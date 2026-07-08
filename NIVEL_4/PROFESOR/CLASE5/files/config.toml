@@ -1,0 +1,10 @@
+[server]
+# Desactiva el watcher automático de módulos. Evita que Streamlit examine
+# librerías como "transformers" en busca de submódulos (lo que generaba
+# los tracebacks de "ModuleNotFoundError: No module named 'torchvision'"
+# en consola). Como contraparte, si editas app.py necesitarás recargar
+# la página manualmente (F5) en vez de que se recargue sola.
+fileWatcherType = "none"
+
+[browser]
+gatherUsageStats = false
